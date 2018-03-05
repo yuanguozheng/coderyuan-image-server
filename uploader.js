@@ -60,7 +60,7 @@ module.exports.start = () => {
         if (err) {
             LogUtil.error(err);
         } else {
-            LogUtil.info(`Uploader service has started, port: ${port}`);
+            LogUtil.info(`Uploader service has been started, port: ${port}`);
         }
     });
 }
