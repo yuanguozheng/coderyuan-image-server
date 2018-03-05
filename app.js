@@ -1,7 +1,7 @@
-const ImageResolver = require('./resolver')
+// const ImageResolver = require('./resolver')
 
-new ImageResolver().startServer();
+// new ImageResolver().startServer();
 
-// const log = require('./log');
+const uploader = require('./uploader');
 
-// log.info('abc');
+uploader.start();

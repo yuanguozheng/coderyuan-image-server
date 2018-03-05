@@ -36,4 +36,6 @@ module.exports.keys = {
     KEY_IMAGE_PATH: 'img_path',
     KEY_RESOLVE_SERVER_PORT: 'resolve_server_port',
     KEY_LOG_ENABLE: 'log_enable',
+    KEY_ACCESS_TOKEN: 'access_token',
+    KEY_UPLOADER_SERVER_PORT: 'uploader_server_port'
 };
