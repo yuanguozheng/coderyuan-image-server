@@ -22,9 +22,10 @@
   },
   "homepage": "https://github.com/yuanguozheng/coderyuan-image-server#readme",
   "dependencies": {
+    "express": "^4.16.2",
     "js-yaml": "^3.10.0",
     "moment": "^2.21.0",
-    "multer": "^1.3.0",
-    "node-static": "^0.7.10"
+    "node-static": "^0.7.10",
+    "multer": "^1.3.0"
   }
 }
