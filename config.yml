@@ -1,0 +1,14 @@
+# The path for store your images, better be an absolute path
+img_path: /Users/yuanguozheng/Desktop/images
+
+# Port for running image resolve process
+resolve_server_port: 18000
+
+# Port for running image uploader process
+uploader_server_port: 18001
+
+# Your AccessToken for upload images, generate by yourself
+access_token: 000
+
+# print log
+log_enable: true
