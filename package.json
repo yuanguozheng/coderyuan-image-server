@@ -1,32 +1,32 @@
 {
-  "name": "coderyuan-image-server",
-  "version": "1.0.0",
-  "description": "An image server for a personal user!",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/yuanguozheng/coderyuan-image-server.git"
-  },
-  "keywords": [
-    "image",
-    "nodejs",
-    "webp"
-  ],
-  "author": "yuanguozheng",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/yuanguozheng/coderyuan-image-server/issues"
-  },
-  "homepage": "https://github.com/yuanguozheng/coderyuan-image-server#readme",
-  "dependencies": {
-    "cwebp": "^2.0.2",
-    "express": "^4.16.2",
-    "js-yaml": "^3.10.0",
-    "moment": "^2.21.0",
-    "multer": "^1.3.0",
-    "node-static": "^0.7.10"
-  }
+    "name": "coderyuan-image-server",
+    "version": "1.0.0",
+    "description": "An image server for a personal user which can upload image and convert to webp, or transmit webp/png images auto by parsing accepts.",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/yuanguozheng/coderyuan-image-server.git"
+    },
+    "keywords": [
+        "image",
+        "nodejs",
+        "webp"
+    ],
+    "author": "yuanguozheng",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/yuanguozheng/coderyuan-image-server/issues"
+    },
+    "homepage": "https://github.com/yuanguozheng/coderyuan-image-server#readme",
+    "dependencies": {
+        "cwebp": "^2.0.2",
+        "express": "^4.16.2",
+        "js-yaml": "^3.10.0",
+        "moment": "^2.21.0",
+        "multer": "^1.3.0",
+        "node-static": "^0.7.10"
+    }
 }
