@@ -17,7 +17,7 @@ class WaterMarker {
      * 
      * @param {string} rawImagePath original image file path.
      * @param {string} outputPath output image file path.
-     * @param {function} callback cb.
+     * @param {function(Error)} callback cb.
      */
     static markAndSave(rawImagePath, outputPath, callback) {
         WaterMarker._getImageSize(rawImagePath, (width, height) => {

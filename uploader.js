@@ -9,7 +9,12 @@ const webpConverter = require('./webp-converter');
 
 const config = require('./config');
 const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
-const GEN_WEBP = config.ConfigManager.getInstance().getValue(conf.keys.KEY_GEN_WEBP);
+const GEN_WEBP = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_WEBP);
+const ADD_WATERMARK = config.ConfigManager.getInstance().getValue(config.keys.KEY_ADD_WATERMARK);
+
+const WaterMarker = require('./watermarker');
+
+const UniResult = require('./universal-result');
 
 const upload = multer({
     dest: config.ConfigManager.getInstance().getImageTempPath(),
@@ -37,13 +42,24 @@ app.use(bodyParser.urlencoded({
 app.use('/', (req, res) => {
     upload(req, res, (err) => {
         if (err) {
-            res.end('failed');
+            LogUtil.error(err);
+            res.json(UniResult.Errors.PARAM_ERROR);
+            res.end();
             return;
         }
         let file = req.file;
         let ext = path.parse(file.originalname).ext;
         let ts = (new Date() * 1);
         let imageFilePath = path.join(TARGET_DIR, `${ts}${ext}`);
+        if (ADD_WATERMARK) {
+            WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
+                if (!err) {
+                    res.end('ok');
+                    return;
+                }
+                LogUtil.error(err);
+            })
+        }
         fs.rename(file.path, imageFilePath, (err) => {
             if (err) {
                 LogUtil.error(err);

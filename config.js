@@ -16,7 +16,8 @@ const keys = {
     KEY_RESOLVER_ENABLE: 'resolver_enable',
     KEY_UPLOADER_ENABLE: 'uploader_enable',
     KEY_WATERMARK_PATH: 'watermark_path',
-    KEY_GEN_WEBP: 'generate_webp'
+    KEY_GEN_WEBP: 'generate_webp',
+    KEY_ADD_WATERMARK: 'add_watermark'
 };
 
 /**
