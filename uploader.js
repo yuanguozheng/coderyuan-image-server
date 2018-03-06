@@ -9,6 +9,7 @@ const webpConverter = require('./webp-converter');
 
 const config = require('./config');
 const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
+const GEN_WEBP = config.ConfigManager.getInstance().getValue(conf.keys.KEY_GEN_WEBP);
 
 const upload = multer({
     dest: config.ConfigManager.getInstance().getImageTempPath(),
@@ -37,22 +38,24 @@ app.use('/', (req, res) => {
     upload(req, res, (err) => {
         if (err) {
             res.end('failed');
-        } else {
-            let file = req.file;
-            let ext = path.parse(file.originalname).ext;
-            let ts = (new Date() * 1);
-            let imageFilePath = path.join(TARGET_DIR, `${ts}${ext}`);
-            fs.rename(file.path, imageFilePath, (err) => {
-                if (err) {
-                    LogUtil.error(err);
-                    res.end('failed');
-                } else {
-                    webpConverter.convertToWebP(imageFilePath, path.join(TARGET_DIR, `${ts}.webp`));
-                    res.end('ok');
-                }
-            });
+            return;
         }
-    });
+        let file = req.file;
+        let ext = path.parse(file.originalname).ext;
+        let ts = (new Date() * 1);
+        let imageFilePath = path.join(TARGET_DIR, `${ts}${ext}`);
+        fs.rename(file.path, imageFilePath, (err) => {
+            if (err) {
+                LogUtil.error(err);
+                res.end('failed');
+            } else {
+                if (GEN_WEBP) {
+                    webpConverter.convertToWebP(imageFilePath, path.join(TARGET_DIR, `${ts}.webp`));
+                }
+                res.end('ok');
+            }
+        });
+    })
 });
 
 const attachWatermark = (imageFilePath, outputPath) => {

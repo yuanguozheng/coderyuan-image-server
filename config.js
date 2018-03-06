@@ -15,7 +15,8 @@ const keys = {
     KEY_UPLOADER_SERVER_PORT: 'uploader_server_port',
     KEY_RESOLVER_ENABLE: 'resolver_enable',
     KEY_UPLOADER_ENABLE: 'uploader_enable',
-    KEY_WATERMARK_PATH: 'watermark_path'
+    KEY_WATERMARK_PATH: 'watermark_path',
+    KEY_GEN_WEBP: 'generate_webp'
 };
 
 /**

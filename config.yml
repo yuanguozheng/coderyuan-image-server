@@ -21,3 +21,9 @@ uploader_enable: true
 
 # Path of watermark image
 watermark_path: './watermark.png'
+
+# Add watermark after upload an image automatically
+add_watermark: true
+
+# Whether or not generate webp format image
+generate_webp: true
