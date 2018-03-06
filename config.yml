@@ -1,5 +1,5 @@
 # The path for store your images, better be an absolute path
-img_path: /Users/liujin/Desktop/images
+img_dir: /Users/yuanguozheng/Desktop/images
 
 # Port for running image resolve process
 resolve_server_port: 18000
@@ -10,5 +10,14 @@ uploader_server_port: 18001
 # Your AccessToken for upload images, generate by yourself
 access_token: '000'
 
-# print log
+# Whether or not print log
 log_enable: true
+
+# Enable Image Resolver Server
+resolver_enable: true
+
+# Enable Image Uploader Server
+uploader_enable: true
+
+# Path of watermark image
+watermark_path: './watermark.png'

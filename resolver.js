@@ -6,7 +6,7 @@ const staticServer = require('node-static');
 const config = require('./config');
 const LogUtil = require('./log');
 
-const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_PATH);
+const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const SERVER_PORT = config.ConfigManager.getInstance().getValue(config.keys.KEY_RESOLVE_SERVER_PORT);
 
 class ImageResolver {

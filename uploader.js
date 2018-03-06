@@ -3,14 +3,15 @@ const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+
 const LogUtil = require('./log');
 const webpConverter = require('./webp-converter');
 
 const config = require('./config');
-const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_PATH);
+const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 
 const upload = multer({
-    dest: path.join(TARGET_DIR, '.temp/'),
+    dest: config.ConfigManager.getInstance().getImageTempPath(),
     fileFilter: (req, file, callback) => {
         const pToken = req.query.accessToken;
         const configToken = config.ConfigManager.getInstance().getValue(config.keys.KEY_ACCESS_TOKEN);
@@ -53,6 +54,10 @@ app.use('/', (req, res) => {
         }
     });
 });
+
+const attachWatermark = (imageFilePath, outputPath) => {
+    const rawImageObj = images(imageFilePath);
+};
 
 module.exports.start = () => {
     const port = config.ConfigManager.getInstance().getValue(config.keys.KEY_UPLOADER_SERVER_PORT);
