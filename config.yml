@@ -27,3 +27,9 @@ add_watermark: true
 
 # Whether or not generate webp format image
 generate_webp: true
+
+# The URL prefix of your image server for fetching image
+image_server_url_prefix: 'https://img.coderyuan.com/'
+
+# Max upload image file size(MB)
+max_image_size: 5

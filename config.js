@@ -17,7 +17,8 @@ const keys = {
     KEY_UPLOADER_ENABLE: 'uploader_enable',
     KEY_WATERMARK_PATH: 'watermark_path',
     KEY_GEN_WEBP: 'generate_webp',
-    KEY_ADD_WATERMARK: 'add_watermark'
+    KEY_ADD_WATERMARK: 'add_watermark',
+    KEY_MAX_IMAGE_SIZE: 'max_image_size'
 };
 
 /**

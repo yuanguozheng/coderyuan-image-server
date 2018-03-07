@@ -11,6 +11,8 @@ const config = require('./config');
 const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const GEN_WEBP = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_WEBP);
 const ADD_WATERMARK = config.ConfigManager.getInstance().getValue(config.keys.KEY_ADD_WATERMARK);
+const URL_RREFIX = config.ConfigManager.getInstance().getValue(config.keys.KEY_URL_PREFIX);
+const MAX_IMAGE_SIZE = config.ConfigManager.getInstance().getValue(config.keys.KEY_MAX_IMAGE_SIZE);
 
 const WaterMarker = require('./watermarker');
 
@@ -25,11 +27,10 @@ const upload = multer({
             callback(new Error('token is invalid'), false);
             return;
         }
-        if (!file.mimetype.startsWith('image/')) {
-            callback(new Error('file is not image'), false);
-            return;
-        }
         callback(null, true);
+    },
+    limits: {
+        fileSize: Math.ceil(MAX_IMAGE_SIZE * 1024 * 1024)
     }
 }).single('image');
 
@@ -43,8 +44,7 @@ app.use('/', (req, res) => {
     upload(req, res, (err) => {
         if (err) {
             LogUtil.error(err);
-            res.json(UniResult.Errors.PARAM_ERROR);
-            res.end();
+            doResponse(null, err);
             return;
         }
         let file = req.file;
@@ -54,7 +54,9 @@ app.use('/', (req, res) => {
         if (ADD_WATERMARK) {
             WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
                 if (!err) {
-                    res.end('ok');
+                    doResponse({
+                        url: `${URL_RREFIX}${imageFilePath}`
+                    });
                     return;
                 }
                 LogUtil.error(err);
@@ -63,15 +65,27 @@ app.use('/', (req, res) => {
         fs.rename(file.path, imageFilePath, (err) => {
             if (err) {
                 LogUtil.error(err);
-                res.end('failed');
+                doResponse(null, err);
+                return;
             } else {
                 if (GEN_WEBP) {
                     webpConverter.convertToWebP(imageFilePath, path.join(TARGET_DIR, `${ts}.webp`));
                 }
-                res.end('ok');
+                doResponse({
+                    url: `${URL_RREFIX}${imageFilePath}`
+                });
             }
         });
     })
+
+    const doResponse = (data, errMsg = null) => {
+        if (data) {
+            res.json(UniResult.UniResult.getSuccess(data));
+        } else {
+            res.json(UniResult.UniResult.getError(-1, errMsg))
+        }
+        res.end();
+    }
 });
 
 const attachWatermark = (imageFilePath, outputPath) => {
