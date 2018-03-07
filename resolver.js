@@ -9,15 +9,26 @@ const LogUtil = require('./log');
 const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const SERVER_PORT = config.ConfigManager.getInstance().getValue(config.keys.KEY_RESOLVE_SERVER_PORT);
 
+/**
+ * Parse url and send image.
+ */
 class ImageResolver {
 
     constructor() {
+        // Init node-static, no cache
         this._fileServer = new staticServer.Server(RESOURCE_ROOT, {
             cache: null,
             gzip: true
         });
     }
 
+    /**
+     * Get the full image file path on the server.
+     * 
+     * @param {boolean} isAbsolutePath 
+     * @param {boolean} needWebp 
+     * @param {ParsedPath} pathInfo 
+     */
     _getImagePath(isAbsolutePath, needWebp, pathInfo) {
         return path.join(
             isAbsolutePath ? RESOURCE_ROOT : '',
@@ -26,6 +37,9 @@ class ImageResolver {
         );
     };
 
+    /**
+     * Start service.
+     */
     startServer() {
         http.createServer((req, res) => {
             req.addListener('end', () => {
@@ -40,13 +54,14 @@ class ImageResolver {
                 const accepts = req.headers['accept'];
                 LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
+                // If HTTP header accepts contains 'image/webp' (like Chrome), return webp file.
                 if (accepts && accepts.indexOf('image/webp') !== -1 && fs.existsSync(fullWebpFilePath)) {
                     LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send webp`);
                     this._fileServer.serveFile(relativeWebpFilePath, 200, { 'Content-Type': 'image/webp' }, req, res);
-                } else if (fs.existsSync(fullNormalFilePath)) {
+                } else if (fs.existsSync(fullNormalFilePath)) {  // If not (like Safari), return png/jpg file.
                     LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
                     this._fileServer.serveFile(relativeNormalFilePath, 200, {}, req, res);
-                } else {
+                } else {  // file not existed.
                     LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
                     res.statusCode = 404;
                     res.end();

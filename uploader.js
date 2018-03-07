@@ -18,11 +18,15 @@ const WaterMarker = require('./watermarker');
 
 const UniResult = require('./universal-result');
 
+/**
+ * Init multer.
+ */
 const upload = multer({
     dest: config.ConfigManager.getInstance().getImageTempPath(),
     fileFilter: (req, file, callback) => {
         const pToken = req.query.accessToken;
         const configToken = config.ConfigManager.getInstance().getValue(config.keys.KEY_ACCESS_TOKEN);
+        // Check token
         if (pToken !== configToken) {
             callback(new Error('token is invalid'), false);
             return;
@@ -40,6 +44,9 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+/**
+ * Router
+ */
 app.use('/', (req, res) => {
     upload(req, res, (err) => {
         if (err) {
@@ -51,6 +58,7 @@ app.use('/', (req, res) => {
         let ext = path.parse(file.originalname).ext;
         let ts = (new Date() * 1);
         let imageFilePath = path.join(TARGET_DIR, `${ts}${ext}`);
+        // If enable watermark, add watermark and save to target path.
         if (ADD_WATERMARK) {
             WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
                 if (!err) {
@@ -62,12 +70,14 @@ app.use('/', (req, res) => {
                 LogUtil.error(err);
             })
         }
+        // If not enable watermark or get an error when adding watermark, rename directly.
         fs.rename(file.path, imageFilePath, (err) => {
             if (err) {
                 LogUtil.error(err);
                 doResponse(null, err);
                 return;
             } else {
+                // If enable webp, convert the image to webp but ignore the result.
                 if (GEN_WEBP) {
                     webpConverter.convertToWebP(imageFilePath, path.join(TARGET_DIR, `${ts}.webp`));
                 }
@@ -78,6 +88,12 @@ app.use('/', (req, res) => {
         });
     })
 
+    /**
+     * Send JSON response.
+     * 
+     * @param {UniResult} data 
+     * @param {string|null} errMsg 
+     */
     const doResponse = (data, errMsg = null) => {
         if (data) {
             res.json(UniResult.UniResult.getSuccess(data));
@@ -88,11 +104,10 @@ app.use('/', (req, res) => {
     }
 });
 
-const attachWatermark = (imageFilePath, outputPath) => {
-    const rawImageObj = images(imageFilePath);
-};
-
-module.exports.start = () => {
+/**
+ * Start service.
+ */
+const startServer = () => {
     const port = config.ConfigManager.getInstance().getValue(config.keys.KEY_UPLOADER_SERVER_PORT);
     app.listen(port, (err) => {
         if (err) {
@@ -102,3 +117,7 @@ module.exports.start = () => {
         }
     });
 }
+
+module.exports = {
+    startServer: startServer
+};
