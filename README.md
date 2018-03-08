@@ -25,6 +25,21 @@ The server provides a HTTP API to POST an image file with AccessToken. At the sa
 
 All the configs in the **[config.yml](config.yml)**
 
+If you don't want to create a page to upload, you can use **cURL**, like: 
+```bash
+curl -F "image=@IMG_20171122_212957.jpg" http://localhost:18001/?accessToken=000
+```
+After uploading, server will response:
+````json
+{
+    "status":0,
+    "data":
+    {
+        "url":"http://localhost:18000/1520529341826.jpg"   // The full URL to fetch image.
+    }
+}
+````
+
 
 ## Run:
 
