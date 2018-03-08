@@ -6,7 +6,7 @@ A simple image server by using Node.js!
 
 ## Features:
 
-### Image Trasmit Service:
+### Image Trasmit Service:
 
 Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF image or WebP image (if file existed) automaticly.
 
