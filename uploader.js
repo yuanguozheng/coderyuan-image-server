@@ -55,53 +55,70 @@ app.use('/', (req, res) => {
             return;
         }
         let file = req.file;
+        if (!file) {
+            doResponse(UniResult.Errors.PARAM_ERROR);
+            return;
+        }
         let ext = path.parse(file.originalname).ext;
         let ts = (new Date() * 1);
-        let imageFilePath = path.join(TARGET_DIR, `${ts}${ext}`);
+        let fileName = `${ts}${ext}`;
+        let imageFilePath = path.join(TARGET_DIR, fileName);
         // If enable watermark, add watermark and save to target path.
         if (ADD_WATERMARK) {
-            WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
+            const markedPath = file.path + '_marked';
+            WaterMarker.markAndSave(file.path, markedPath, (err) => {
                 if (!err) {
+                    fs.unlink(file.path, (err) => {
+                        if (err) {
+                            LogUtil.error(err);
+                        }
+                    });
+                    moveFile(markedPath, imageFilePath);
                     doResponse({
-                        url: `${URL_RREFIX}${imageFilePath}`
+                        url: `${URL_RREFIX}${fileName}`
                     });
                     return;
                 }
                 LogUtil.error(err);
             })
+        } else {
+            // If not enable watermark or get an error when adding watermark, rename directly.
+            moveFile(file.path, imageFilePath);
         }
-        // If not enable watermark or get an error when adding watermark, rename directly.
-        fs.rename(file.path, imageFilePath, (err) => {
-            if (err) {
-                LogUtil.error(err);
-                doResponse(null, err);
-                return;
-            } else {
-                // If enable webp, convert the image to webp but ignore the result.
-                if (GEN_WEBP) {
-                    webpConverter.convertToWebP(imageFilePath, path.join(TARGET_DIR, `${ts}.webp`));
+
+        const moveFile = (currentPath, destPath) => {
+            fs.rename(currentPath, destPath, (err) => {
+                if (err) {
+                    LogUtil.error(err);
+                    doResponse(null, err);
+                    return;
+                } else {
+                    // If enable webp, convert the image to webp but ignore the result.
+                    if (GEN_WEBP) {
+                        webpConverter.convertToWebP(destPath, path.join(destPath, '.webp'));
+                    }
+                    doResponse({
+                        url: `${URL_RREFIX}${fileName}`
+                    });
                 }
-                doResponse({
-                    url: `${URL_RREFIX}${imageFilePath}`
-                });
-            }
-        });
-    })
+            });
+        }
+    });
 
     /**
      * Send JSON response.
      * 
      * @param {UniResult} data 
-     * @param {string|null} errMsg 
+     * @param {Error|null} err 
      */
-    const doResponse = (data, errMsg = null) => {
+    const doResponse = (data, err = null) => {
         if (data) {
             res.json(UniResult.UniResult.getSuccess(data));
         } else {
-            res.json(UniResult.UniResult.getError(-1, errMsg))
+            res.json(UniResult.UniResult.getError(-1, err.message))
         }
         res.end();
-    }
+    };
 });
 
 /**

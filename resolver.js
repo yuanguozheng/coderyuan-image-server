@@ -33,7 +33,7 @@ class ImageResolver {
         return path.join(
             isAbsolutePath ? RESOURCE_ROOT : '',
             pathInfo.dir,
-            pathInfo.name + (needWebp ? '.webp' : pathInfo.ext)
+            pathInfo.name + pathInfo.ext + (needWebp ? '.webp' : '')
         );
     };
 

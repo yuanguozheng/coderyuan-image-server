@@ -9,5 +9,5 @@ if (resolverEnable) {
 
 if (uploaderEnable) {
     const uploader = require('./uploader');
-    uploader.start();
+    uploader.startServer();
 }

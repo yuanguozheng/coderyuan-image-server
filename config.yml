@@ -1,5 +1,5 @@
 # The path for store your images, better be an absolute path
-img_dir: /Users/liujin/Desktop/images
+img_dir: /Users/yuanguozheng/Desktop/images
 
 # Port for running image resolve process
 resolve_server_port: 18000
@@ -29,7 +29,7 @@ add_watermark: true
 generate_webp: true
 
 # The URL prefix of your image server for fetching image
-image_server_url_prefix: 'https://img.coderyuan.com/'
+image_server_url_prefix: 'https://localhost:18000/'
 
 # Max upload image file size(MB)
 max_image_size: 5

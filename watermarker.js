@@ -5,7 +5,6 @@ const config = require('./config');
 const LogUtil = require('./log');
 
 const WATERMARK_PATH = config.ConfigManager.getInstance().getValue(config.keys.KEY_WATERMARK_PATH);
-const IMAGE_SAVE_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 
 /**
  * An util to attach watermark on target image.
@@ -52,9 +51,12 @@ class WaterMarker {
                     callback(new Error('Image size error.'))
                     return;
                 }
+                
+                targetWmHeight = Math.ceil(targetWmHeight);
+                targetWmWidth = Math.ceil(targetWmWidth);
 
-                const targetX = width - targetWmWidth;
-                const targetY = height - targetWmHeight;
+                const targetX = Math.ceil(width - targetWmWidth);
+                const targetY = Math.ceil(height - targetWmHeight);
 
                 const tempDir = config.ConfigManager.getInstance().getImageTempPath();
                 const fullTargetTempWmPath = path.join(tempDir, `wm_${new Date() * 1}.png`);
