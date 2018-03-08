@@ -35,10 +35,11 @@ After uploading, server will response:
     "status":0,
     "data":
     {
-        "url":"http://localhost:18000/1520529341826.jpg"   // The full URL to fetch image.
+        "url":"http://localhost:18000/1520529341826.jpg"
     }
 }
 ````
+Field **URL** means the full URL for fetching image.
 
 
 ## Run:
