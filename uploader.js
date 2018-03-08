@@ -73,37 +73,34 @@ app.use('/', (req, res) => {
                             LogUtil.error(err);
                         }
                     });
-                    moveFile(markedPath, imageFilePath);
-                    doResponse({
-                        url: `${URL_RREFIX}${fileName}`
-                    });
+                    moveFile(markedPath, imageFilePath, fileName);
                     return;
                 }
                 LogUtil.error(err);
             })
         } else {
             // If not enable watermark or get an error when adding watermark, rename directly.
-            moveFile(file.path, imageFilePath);
-        }
-
-        const moveFile = (currentPath, destPath) => {
-            fs.rename(currentPath, destPath, (err) => {
-                if (err) {
-                    LogUtil.error(err);
-                    doResponse(null, err);
-                    return;
-                } else {
-                    // If enable webp, convert the image to webp but ignore the result.
-                    if (GEN_WEBP) {
-                        webpConverter.convertToWebP(destPath, path.join(destPath, '.webp'));
-                    }
-                    doResponse({
-                        url: `${URL_RREFIX}${fileName}`
-                    });
-                }
-            });
+            moveFile(file.path, imageFilePath, fileName);
         }
     });
+
+    const moveFile = (currentPath, destPath, fileName) => {
+        fs.rename(currentPath, destPath, (err) => {
+            if (err) {
+                LogUtil.error(err);
+                doResponse(null, err);
+                return;
+            } else {
+                // If enable webp, convert the image to webp but ignore the result.
+                if (GEN_WEBP) {
+                    webpConverter.convertToWebP(destPath, destPath + '.webp');
+                }
+                doResponse({
+                    url: `${URL_RREFIX}${fileName}`
+                });
+            }
+        });
+    };
 
     /**
      * Send JSON response.

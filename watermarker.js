@@ -71,11 +71,8 @@ class WaterMarker {
                         callback(err);
                         return;
                     }
-                    gm().in('-page', '+0+0')
-                        .in(rawImagePath)
-                        .in('-page', `+${targetX}+${targetY}`)
-                        .in(fullTargetTempWmPath)
-                        .mosaic()
+                    gm(rawImagePath).composite(fullTargetTempWmPath)
+                        .geometry(`+${targetX}+${targetY}`)
                         .write(outputPath, (err) => {
                             if (err) {
                                 LogUtil.error(err);

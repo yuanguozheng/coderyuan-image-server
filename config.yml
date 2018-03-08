@@ -1,5 +1,5 @@
 # The path for store your images, better be an absolute path
-img_dir: /Users/yuanguozheng/Desktop/images
+img_dir: /Users/liujin/Desktop/images
 
 # Port for running image resolve process
 resolve_server_port: 18000
