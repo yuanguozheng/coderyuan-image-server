@@ -53,6 +53,7 @@ class ImageResolver {
                     LogUtil.error(`URL: ${req.url} is illegal.`);
                     res.statusCode = 404;
                     res.end();
+                    return;
                 }
 
                 const fullWebpFilePath = this._getImagePath(true, true, pathInfo);
