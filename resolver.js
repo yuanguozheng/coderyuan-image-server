@@ -50,7 +50,7 @@ class ImageResolver {
                 const pathInfo = path.parse(url.pathname);
 
                 if (!pathInfo.name) {
-                    LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
+                    LogUtil.error(`URL: ${req.url} is illegal.`);
                     res.statusCode = 404;
                     res.end();
                 }
