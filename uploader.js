@@ -123,7 +123,9 @@ app.use('/', (req, res) => {
  */
 const startServer = () => {
     const port = config.ConfigManager.getInstance().getValue(config.keys.KEY_UPLOADER_SERVER_PORT);
-    app.listen(port, (err) => {
+    const hostname = config.ConfigManager.getInstance().getValue(config.keys.KEY_BIND_LOCAL) ? '127.0.0.1' : null;
+    
+    app.listen(port, hostname, (err) => {
         if (err) {
             LogUtil.error(err);
         } else {

@@ -1,5 +1,8 @@
 # The path for store your images, better be an absolute path
-img_dir: /Users/liujin/Desktop/images
+img_dir: /Users/yuanguozheng/Desktop/images
+
+# Whether or not bind 127.0.0.1
+bind_local_address: true
 
 # Port for running image resolve process
 resolve_server_port: 18000

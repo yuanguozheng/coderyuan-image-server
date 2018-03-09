@@ -19,7 +19,8 @@ const keys = {
     KEY_GEN_WEBP: 'generate_webp',
     KEY_ADD_WATERMARK: 'add_watermark',
     KEY_MAX_IMAGE_SIZE: 'max_image_size',
-    KEY_URL_PREFIX: 'image_server_url_prefix'
+    KEY_URL_PREFIX: 'image_server_url_prefix',
+    KEY_BIND_LOCAL: 'bind_local_address'
 };
 
 /**

@@ -41,6 +41,8 @@ class ImageResolver {
      * Start service.
      */
     startServer() {
+        const hostname = config.ConfigManager.getInstance().getValue(config.keys.KEY_BIND_LOCAL) ? '127.0.0.1' : null;
+
         http.createServer((req, res) => {
             req.addListener('end', () => {
                 const url = URL.parse(req.url);
@@ -67,7 +69,7 @@ class ImageResolver {
                     res.end();
                 }
             }).resume();
-        }).listen(SERVER_PORT, (err) => {
+        }).listen(SERVER_PORT, hostname, (err) => {
             if (err) {
                 LogUtil.error(err)
             } else {
