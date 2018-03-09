@@ -48,6 +48,13 @@ class ImageResolver {
                 const url = URL.parse(req.url);
 
                 const pathInfo = path.parse(url.pathname);
+
+                if (!pathInfo.name) {
+                    LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
+                    res.statusCode = 404;
+                    res.end();
+                }
+
                 const fullWebpFilePath = this._getImagePath(true, true, pathInfo);
                 const relativeWebpFilePath = this._getImagePath(false, true, pathInfo);
                 const fullNormalFilePath = this._getImagePath(true, false, pathInfo);
