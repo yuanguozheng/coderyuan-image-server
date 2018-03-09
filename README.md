@@ -2,7 +2,46 @@
 
 A simple image server by using Node.js!
 
+## Requirements:
 
+**OS**: Linux or macOS, not support Windows.
+
+**WebP**: 
+
+Download WebP sources from [Google Developers](https://developers.google.com/speed/webp/) or Install by brew or yum.
+
+    brew install webp          # macOS
+    sudo yum install libwebp   # CentOS
+
+If you get the information below then your webp has been installed:
+
+```bash
+cwebp
+Usage:
+
+   cwebp [options] -q quality input.png -o output.webp
+
+where quality is between 0 (poor) to 100 (very good).
+Typical value is around 80.
+
+Try -longhelp for an exhaustive list of advanced options.
+```
+
+**GraphicsMagick** or **ImageMagick**:
+
+Download and install [GraphicsMagick](http://www.graphicsmagick.org/) or [ImageMagick](http://www.imagemagick.org/). In Mac OS X, you can simply use [Homebrew](http://mxcl.github.io/homebrew/) and do:
+
+    brew install imagemagick
+    brew install graphicsmagick
+
+If you want WebP support with ImageMagick, you must add the WebP option:
+
+    brew install imagemagick --with-webp
+
+On CentOS:
+   
+    sudo yum install GraphicsMagick
+    sudo yum install ImageMagick
 
 ## Features:
 
