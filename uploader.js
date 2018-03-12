@@ -48,6 +48,7 @@ app.use(bodyParser.urlencoded({
  * Router
  */
 app.use('/', (req, res) => {
+    const noWaterMark = (req.query.nopic === '1');
     upload(req, res, (err) => {
         if (err) {
             LogUtil.error(err);
@@ -64,7 +65,7 @@ app.use('/', (req, res) => {
         let fileName = `${ts}${ext}`;
         let imageFilePath = path.join(TARGET_DIR, fileName);
         // If enable watermark, add watermark and save to target path.
-        if (ADD_WATERMARK) {
+        if (ADD_WATERMARK && !noWaterMark) {
             const markedPath = file.path + '_marked';
             WaterMarker.markAndSave(file.path, markedPath, (err) => {
                 if (!err) {
