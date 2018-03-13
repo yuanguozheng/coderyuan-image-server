@@ -48,7 +48,7 @@ app.use(bodyParser.urlencoded({
  * Router
  */
 app.use('/', (req, res) => {
-    const noWaterMark = (req.query.nopic === '1');
+    const noWaterMark = (req.query.nomark === '1');
     upload(req, res, (err) => {
         if (err) {
             LogUtil.error(err);
