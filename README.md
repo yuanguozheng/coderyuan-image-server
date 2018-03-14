@@ -66,7 +66,7 @@ All the configs in the **[config.yml](config.yml)**
 
 If you don't want to create a page to upload, you can use **cURL**, like: 
 ```bash
-curl -F "image=@IMG_20171122_212957.jpg" http://localhost:18001/?accessToken=000
+curl -F "image=@IMG_20171122_212957.jpg" http://localhost:18001/?accessToken=000&nomark=0   # nomark=1 if you don't want to attach water mark.
 ```
 After uploading, server will response:
 ````json
