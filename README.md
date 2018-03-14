@@ -2,6 +2,8 @@
 
 A simple image server by using Node.js!
 
+[中文文档](README_cn.md)
+
 ## Requirements:
 
 **OS**: Linux or macOS, not support Windows.
@@ -60,7 +62,7 @@ Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF
 
 ### Image Upload Service:
 
-The server provides a HTTP API to POST an image file with AccessToken. At the same, you can set whether or not attaching a watermark and converting to WebP format.
+The server provides a HTTP API to POST an image file with AccessToken. At the same time, you can set whether or not attaching a watermark and converting to WebP format.
 
 All the configs in the **[config.yml](config.yml)**
 
@@ -104,3 +106,5 @@ If the server has been launched normally, the terminal will get:
 [2018-03-09 00:47:01.046] - INFO	  Resolver service has been started, port: 18000
 [2018-03-09 00:47:01.050] - INFO	  Uploader service has been started, port: 18001
 ```
+
+After running server, you can config reverse proxy for nginx to access by your domain!
