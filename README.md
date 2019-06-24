@@ -47,7 +47,7 @@ On CentOS:
 
 ## Features:
 
-### Image Trasmit Service:
+### Image Transmit Service:
 
 Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF image or WebP image (if file existed) automaticly.
 
