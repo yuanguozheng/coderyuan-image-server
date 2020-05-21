@@ -1,5 +1,5 @@
-const CWebp = require('cwebp').CWebp;
 const LogUtil = require('./log');
+const { exec } = require('child_process');
 
 class WebPConverter {
 
@@ -10,12 +10,7 @@ class WebPConverter {
      * @param {string} output 
      */
     static convertToWebP(input, output) {
-        const encoder = CWebp(input);
-        encoder.write(output, (err) => {
-            if (err) {
-                LogUtil.error(err);
-            }
-        });
+        exec(`cwebp "${input}" -o "${output}"`);
     }
 }
 

@@ -22,7 +22,6 @@
     },
     "homepage": "https://github.com/yuanguozheng/coderyuan-image-server#readme",
     "dependencies": {
-        "cwebp": "^2.0.2",
         "express": "^4.16.2",
         "gm": "^1.23.1",
         "js-yaml": "^3.10.0",

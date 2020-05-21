@@ -76,8 +76,10 @@ app.use('/', (req, res) => {
                     });
                     moveFile(markedPath, imageFilePath, fileName);
                     return;
+                } else {
+                    LogUtil.error(err);
+                    doResponse(null, err);
                 }
-                LogUtil.error(err);
             })
         } else {
             // If not enable watermark or get an error when adding watermark, rename directly.
@@ -125,7 +127,7 @@ app.use('/', (req, res) => {
 const startServer = () => {
     const port = config.ConfigManager.getInstance().getValue(config.keys.KEY_UPLOADER_SERVER_PORT);
     const hostname = config.ConfigManager.getInstance().getValue(config.keys.KEY_BIND_LOCAL) ? '127.0.0.1' : null;
-    
+
     app.listen(port, hostname, (err) => {
         if (err) {
             LogUtil.error(err);
