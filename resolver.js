@@ -9,6 +9,9 @@ const LogUtil = require('./log');
 const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const SERVER_PORT = config.ConfigManager.getInstance().getValue(config.keys.KEY_RESOLVE_SERVER_PORT);
 
+const EXT_WEBP = '.webp';
+const EXT_AVIF = '.avif';
+
 /**
  * Parse url and send image.
  */
@@ -26,14 +29,14 @@ class ImageResolver {
      * Get the full image file path on the server.
      * 
      * @param {boolean} isAbsolutePath 
-     * @param {boolean} needWebp 
+     * @param {string} extension 
      * @param {ParsedPath} pathInfo 
      */
-    _getImagePath(isAbsolutePath, needWebp, pathInfo) {
+    _getImagePath(isAbsolutePath, extension, pathInfo) {
         return path.join(
             isAbsolutePath ? RESOURCE_ROOT : '',
             pathInfo.dir,
-            pathInfo.name + pathInfo.ext + (needWebp ? '.webp' : '')
+            pathInfo.name + pathInfo.ext + (extension ? extension : '')
         );
     };
 
@@ -56,16 +59,22 @@ class ImageResolver {
                     return;
                 }
 
-                const fullWebpFilePath = this._getImagePath(true, true, pathInfo);
-                const relativeWebpFilePath = this._getImagePath(false, true, pathInfo);
-                const fullNormalFilePath = this._getImagePath(true, false, pathInfo);
-                const relativeNormalFilePath = this._getImagePath(false, false, pathInfo);
+                const fullAvifFilePath = this._getImagePath(true, EXT_AVIF, pathInfo);
+                const relativeAvifFilePath = this._getImagePath(false, EXT_AVIF, pathInfo);
+                const fullWebpFilePath = this._getImagePath(true, EXT_WEBP, pathInfo);
+                const relativeWebpFilePath = this._getImagePath(false, EXT_WEBP, pathInfo);
+                const fullNormalFilePath = this._getImagePath(true, null, pathInfo);
+                const relativeNormalFilePath = this._getImagePath(false, null, pathInfo);
 
                 const accepts = req.headers['accept'];
                 LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
-                // If HTTP header accepts contains 'image/webp' (like Chrome), return webp file.
-                if (accepts && accepts.indexOf('image/webp') !== -1 && fs.existsSync(fullWebpFilePath)) {
+                // If HTTP header accepts contains 'image/avif' (like Chrome/Edge), return avif file.
+                if (accepts && accepts.indexOf('image/avif') !== -1 && fs.existsSync(fullAvifFilePath)) {
+                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send avif`);
+                    this._fileServer.serveFile(relativeAvifFilePath, 200, { 'Content-Type': 'image/avif' }, req, res);
+                } else if (accepts && accepts.indexOf('image/webp') !== -1 && fs.existsSync(fullWebpFilePath)) { 
+                    // If HTTP header accepts contains 'image/webp' (like Chrome), return webp file.
                     LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send webp`);
                     this._fileServer.serveFile(relativeWebpFilePath, 200, { 'Content-Type': 'image/webp' }, req, res);
                 } else if (fs.existsSync(fullNormalFilePath)) {  // If not (like Safari), return png/jpg file.

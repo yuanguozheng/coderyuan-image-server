@@ -17,6 +17,7 @@ const keys = {
     KEY_UPLOADER_ENABLE: 'uploader_enable',
     KEY_WATERMARK_PATH: 'watermark_path',
     KEY_GEN_WEBP: 'generate_webp',
+    KEY_GEN_AVIF: 'generate_avif',
     KEY_ADD_WATERMARK: 'add_watermark',
     KEY_MAX_IMAGE_SIZE: 'max_image_size',
     KEY_URL_PREFIX: 'image_server_url_prefix',
@@ -30,7 +31,7 @@ class ConfigManager {
 
     constructor() {
         try {
-            this._allConfigs = yaml.safeLoad(fs.readFileSync('./config.yml'));
+            this._allConfigs = yaml.load(fs.readFileSync('./config.yml'));
         } catch (e) {
             console.log(e);
         }

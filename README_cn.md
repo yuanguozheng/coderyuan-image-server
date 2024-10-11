@@ -1,46 +1,25 @@
 # coderyuan-image-server
 
-一个使用Node.js开发的图片服务器！可以根据浏览器的不同，实现同一个URL，返回WebP格式或者PNG/JPG/GIF格式的图片数据！
+一个使用 Node.js 开发的图片服务器！可以根据浏览器的不同，实现同一个 URL，返回 WebP/AVIF 格式或者 PNG/JPG/GIF格式的图片数据！
 
 [English](README.md)
 
 ## 环境要求:
 
-**操作系统**: Linux 或 macOS，暂不支持Windows.
-
-**WebP支持库及相关工具**: 
-
-你可以从[Google Developers](https://developers.google.com/speed/webp/)下载源码编译安装或者使用brew、yum这样的包管理器安装WebP支持库和相关工具。
-
-    brew install webp          # macOS
-    sudo yum install libwebp   # CentOS
-
-当使用cwebp命令时，出现以下信息，则证明安装成功：
-
-```bash
-cwebp
-Usage:
-
-   cwebp [options] -q quality input.png -o output.webp
-
-where quality is between 0 (poor) to 100 (very good).
-Typical value is around 80.
-
-Try -longhelp for an exhaustive list of advanced options.
-```
+**操作系统**: Linux 或 macOS，暂不支持 Windows.
 
 **GraphicsMagick** or **ImageMagick**:
 
-接着需要下载安装[GraphicsMagick](http://www.graphicsmagick.org/) 或者 [ImageMagick](http://www.imagemagick.org/)，如果你使用macOS，使用[Homebrew](http://mxcl.github.io/homebrew/)来按以下命令安装也行：
+接着需要下载安装[GraphicsMagick](http://www.graphicsmagick.org/) 或者 [ImageMagick](http://www.imagemagick.org/)，如果你使用 macOS，使用[Homebrew](http://mxcl.github.io/homebrew/)来按以下命令安装也行：
 
     brew install imagemagick
     brew install graphicsmagick
 
-如果希望ImageMagick支持WebP，需要添加以下参数：
+如果希望 ImageMagick 支持 WebP，需要添加以下参数：
 
     brew install imagemagick --with-webp
 
-在CentOS上使用以下命令安装：
+在 CentOS 上使用以下命令安装：
    
     sudo yum install GraphicsMagick
     sudo yum install ImageMagick
@@ -49,7 +28,7 @@ Try -longhelp for an exhaustive list of advanced options.
 
 ### 图片传输服务：
 
-coderyuan-image-server会解析HTTP请求头中的**accepts**字段, 根据是否有**image/webp**这项，来自动决定返回PNG/JPG/GIF格式的图片流数据，还是返回体积非常小的WebP格式图片数据（前提是指定的目录中存在WebP格式图片）。
+coderyuan-image-server 会解析 HTTP 请求头中的**accepts**字段, 根据是否有**image/webp**这项，来自动决定返回 PNG/JPG/GIF 格式的图片流数据，还是返回体积非常小的 WebP/AVIF 格式图片数据（前提是指定的目录中存在 WebP/AVIF 格式图片）。
 
 #### Chrome浏览器中的效果:
 
@@ -62,7 +41,7 @@ coderyuan-image-server会解析HTTP请求头中的**accepts**字段, 根据是�
 
 ### 图片上传服务：
 
-coderyuan-image-server提供带AccessToken的图片上传服务，支持将你提交的符合配置要求的图片，存入指定的服务器目录。同时，你也可以根据参数，指定是否添加你指定的水印图片、是否自动转换成WebP格式。
+coderyuan-image-server 提供带 AccessToken 的图片上传服务，支持将你提交的符合配置要求的图片，存入指定的服务器目录。同时，你也可以根据参数，指定是否添加你指定的水印图片、是否自动转换成 WebP 格式。
 
 所有的配置，都保存在 **[config.yml](config.yml)** 文件中
 
@@ -105,4 +84,4 @@ git clone https://github.com/yuanguozheng/coderyuan-image-server && cd coderyuan
 [2018-03-09 00:47:01.050] - INFO	  Uploader service has been started, port: 18001
 ```
 
-运行起来以后，配置一下nginx做反向代理，就可以正常访问了！
+运行起来以后，配置一下 nginx 做反向代理，就可以正常访问了！

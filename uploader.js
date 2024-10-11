@@ -3,13 +3,14 @@ const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const sharp = require('sharp');
 
 const LogUtil = require('./log');
-const webpConverter = require('./webp-converter');
 
 const config = require('./config');
 const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const GEN_WEBP = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_WEBP);
+const GEN_AVIF = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_AVIF);
 const ADD_WATERMARK = config.ConfigManager.getInstance().getValue(config.keys.KEY_ADD_WATERMARK);
 const URL_RREFIX = config.ConfigManager.getInstance().getValue(config.keys.KEY_URL_PREFIX);
 const MAX_IMAGE_SIZE = config.ConfigManager.getInstance().getValue(config.keys.KEY_MAX_IMAGE_SIZE);
@@ -96,7 +97,11 @@ app.use('/', (req, res) => {
             } else {
                 // If enable webp, convert the image to webp but ignore the result.
                 if (GEN_WEBP) {
-                    webpConverter.convertToWebP(destPath, destPath + '.webp');
+                    sharp(destPath).toFile(destPath + '.webp');
+                }
+                // If enable avif, convert the image to avif but ignore the result.
+                if (GEN_AVIF) {
+                    sharp(destPath).toFile(destPath + '.avif');
                 }
                 doResponse({
                     url: `${URL_RREFIX}${fileName}`
