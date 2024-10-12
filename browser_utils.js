@@ -1,4 +1,4 @@
-export default class BrowserUtils {
+class BrowserUtils {
 
     static isSafari(userAgent) {
         return /Safari/.test(userAgent) && /Version/.test(userAgent) && !/Chrome|Edg/.test(userAgent);
@@ -26,3 +26,5 @@ export default class BrowserUtils {
         return null;
     }
 }
+
+module.exports = BrowserUtils;
