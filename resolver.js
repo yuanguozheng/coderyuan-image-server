@@ -5,7 +5,7 @@ const http = require('http');
 const staticServer = require('node-static');
 const config = require('./config');
 const LogUtil = require('./log');
-const { default: BrowserUtils } = require('./browser_utils');
+const BrowserUtils = require('./browser_utils');
 
 const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const SERVER_PORT = config.ConfigManager.getInstance().getValue(config.keys.KEY_RESOLVE_SERVER_PORT);
