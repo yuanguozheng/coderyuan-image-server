@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
-const bodyParser = require('body-parser');
 const multer = require('multer');
 const sharp = require('sharp');
 
@@ -9,11 +8,11 @@ const LogUtil = require('./log');
 
 const config = require('./config');
 const TARGET_DIR = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
-const GEN_WEBP = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_WEBP);
-const GEN_AVIF = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_AVIF);
 const ADD_WATERMARK = config.ConfigManager.getInstance().getValue(config.keys.KEY_ADD_WATERMARK);
 const URL_RREFIX = config.ConfigManager.getInstance().getValue(config.keys.KEY_URL_PREFIX);
 const MAX_IMAGE_SIZE = config.ConfigManager.getInstance().getValue(config.keys.KEY_MAX_IMAGE_SIZE);
+const COMPRESS_FORMATS = config.ConfigManager.getInstance().getValue(config.keys.KEY_FORMATS);
+const GEN_COMPRESS = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_COMPRESS);
 
 const WaterMarker = require('./watermarker');
 
@@ -40,10 +39,8 @@ const upload = multer({
 }).single('image');
 
 const app = express();
-
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+sharp.concurrency(1);
+sharp.cache(false);
 
 /**
  * Router
@@ -65,23 +62,17 @@ app.use('/', (req, res) => {
         let ts = (new Date() * 1);
         let fileName = `${ts}${ext}`;
         let imageFilePath = path.join(TARGET_DIR, fileName);
+
         // If enable watermark, add watermark and save to target path.
         if (ADD_WATERMARK && !noWaterMark) {
-            const markedPath = file.path + '_marked';
-            WaterMarker.markAndSave(file.path, markedPath, (err) => {
+            WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
                 if (!err) {
-                    fs.unlink(file.path, (err) => {
-                        if (err) {
-                            LogUtil.error(err);
-                        }
-                    });
-                    moveFile(markedPath, imageFilePath, fileName);
-                    return;
+                    processFormats(imageFilePath, fileName);
                 } else {
                     LogUtil.error(err);
                     doResponse(null, err);
                 }
-            })
+            });
         } else {
             // If not enable watermark or get an error when adding watermark, rename directly.
             moveFile(file.path, imageFilePath, fileName);
@@ -95,18 +86,25 @@ app.use('/', (req, res) => {
                 doResponse(null, err);
                 return;
             } else {
-                // If enable webp, convert the image to webp but ignore the result.
-                if (GEN_WEBP) {
-                    sharp(destPath).toFile(destPath + '.webp');
-                }
-                // If enable avif, convert the image to avif but ignore the result.
-                if (GEN_AVIF) {
-                    sharp(destPath).toFile(destPath + '.avif');
-                }
                 doResponse({
                     url: `${URL_RREFIX}${fileName}`
                 });
             }
+        });
+    };
+
+    const processFormats = (imageFilePath, fileName) => {
+        if (GEN_COMPRESS) {
+            let sharpImage = sharp(imageFilePath);
+            COMPRESS_FORMATS.forEach(ext => {
+                sharpImage.clone().toFile(imageFilePath + ext, (err) => {
+                    if (err) LogUtil.error(err);
+                });
+            });
+        }
+       
+        doResponse({
+            url: `${URL_RREFIX}${fileName}`
         });
     };
 

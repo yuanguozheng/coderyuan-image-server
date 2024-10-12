@@ -5,12 +5,17 @@ const http = require('http');
 const staticServer = require('node-static');
 const config = require('./config');
 const LogUtil = require('./log');
+const { default: BrowserUtils } = require('./browser_utils');
 
 const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KEY_IMAGE_DIR);
 const SERVER_PORT = config.ConfigManager.getInstance().getValue(config.keys.KEY_RESOLVE_SERVER_PORT);
 
-const EXT_WEBP = '.webp';
-const EXT_AVIF = '.avif';
+const EXT_MAP = {
+    "image/avif": ".avif",
+    "image/webp": ".webp",
+    "image/heic": '.heic',
+    "image/heif": '.heic',
+};
 
 /**
  * Parse url and send image.
@@ -59,31 +64,50 @@ class ImageResolver {
                     return;
                 }
 
-                const fullAvifFilePath = this._getImagePath(true, EXT_AVIF, pathInfo);
-                const relativeAvifFilePath = this._getImagePath(false, EXT_AVIF, pathInfo);
-                const fullWebpFilePath = this._getImagePath(true, EXT_WEBP, pathInfo);
-                const relativeWebpFilePath = this._getImagePath(false, EXT_WEBP, pathInfo);
                 const fullNormalFilePath = this._getImagePath(true, null, pathInfo);
                 const relativeNormalFilePath = this._getImagePath(false, null, pathInfo);
 
                 const accepts = req.headers['accept'];
                 LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
-                // If HTTP header accepts contains 'image/avif' (like Chrome/Edge), return avif file.
-                if (accepts && accepts.indexOf('image/avif') !== -1 && fs.existsSync(fullAvifFilePath)) {
-                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send avif`);
-                    this._fileServer.serveFile(relativeAvifFilePath, 200, { 'Content-Type': 'image/avif' }, req, res);
-                } else if (accepts && accepts.indexOf('image/webp') !== -1 && fs.existsSync(fullWebpFilePath)) { 
-                    // If HTTP header accepts contains 'image/webp' (like Chrome), return webp file.
-                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send webp`);
-                    this._fileServer.serveFile(relativeWebpFilePath, 200, { 'Content-Type': 'image/webp' }, req, res);
-                } else if (fs.existsSync(fullNormalFilePath)) {  // If not (like Safari), return png/jpg file.
-                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
-                    this._fileServer.serveFile(relativeNormalFilePath, 200, {}, req, res);
-                } else {  // file not existed.
-                    LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
-                    res.statusCode = 404;
-                    res.end();
+                if (!accepts || accepts.length === 0) {
+                    sendNormalFile(this._fileServer);
+                    return;
+                }
+                const userAgent = req.headers['user-agent'];
+                if (BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
+                    const heicPath = this._getImagePath(true, ".heic", pathInfo);
+                    const relativeHeicPath = this._getImagePath(false, ".heic", pathInfo);
+                    if (fs.existsSync(heicPath)) {
+                        LogUtil.info(`URL: ${req.url} Sarafi send .heic`);
+                        this._fileServer.serveFile(relativeHeicPath, 200, { 'Content-Type': "image/heic" }, req, res);
+                        return;
+                    }
+                } else {
+                    for (let mime in EXT_MAP) {
+                        if (accepts.indexOf(mime) !== -1) {
+                            const ext = EXT_MAP[mime];
+                            const fullCompressedFilePath = this._getImagePath(true, ext, pathInfo);
+                            const relativeCompressedFilePath = this._getImagePath(false, ext, pathInfo);
+                            if (fs.existsSync(fullCompressedFilePath)) {
+                                LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send ${ext}`);
+                                this._fileServer.serveFile(relativeCompressedFilePath, 200, { 'Content-Type': mime }, req, res);
+                                return;
+                            }
+                        }
+                    }
+                }
+                sendNormalFile(this._fileServer);
+
+                function sendNormalFile(server) {
+                    if (fs.existsSync(fullNormalFilePath)) { // If not (like Safari), return original file (png/jpg).
+                        LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
+                        server.serveFile(relativeNormalFilePath, 200, {}, req, res);
+                    } else { // file not existed.
+                        LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
+                        res.statusCode = 404;
+                        res.end();
+                    }
                 }
             }).resume();
         }).listen(SERVER_PORT, hostname, (err) => {

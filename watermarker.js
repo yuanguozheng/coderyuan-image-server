@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const gm = require('gm');
+const sharp = require('sharp');
 const config = require('./config');
 const LogUtil = require('./log');
 
@@ -18,10 +18,13 @@ class WaterMarker {
      * @param {string} outputPath output image file path.
      * @param {function(Error)} callback cb.
      */
-    static markAndSave(rawImagePath, outputPath, callback) {
-        WaterMarker._getImageSize(rawImagePath, (width, height) => {
+    static async markAndSave(rawImagePath, outputPath, callback) {
+        try {
+            const rawSize = await WaterMarker._getImageSize(rawImagePath);
+            let width = rawSize.width;
+            let height = rawSize.height;
             if (width <= 0 || height <= 0) {
-                callback(new Error('Image load error.'))
+                callback(new Error('Image load error.'));
                 return;
             }
 
@@ -29,80 +32,69 @@ class WaterMarker {
             const rateH = 0.15;
             const rateW = 0.50;
 
-            WaterMarker._getImageSize(WATERMARK_PATH, (wmWidth, wmHeight) => {
-                if (wmWidth <= 0 || wmHeight <= 0) {
-                    callback(new Error('Image load error.'))
-                    return;
-                }
+            const wmSize = await WaterMarker._getImageSize(WATERMARK_PATH);
+            let wmWidth = wmSize.width;
+            let wmHeight = wmSize.height;
+            if (wmWidth <= 0 || wmHeight <= 0) {
+                callback(new Error('Watermark load error.'));
+                return;
+            }
 
-                let targetWmWidth = 0;
-                let targetWmHeight = 0;
+            let targetWmWidth = 0;
+            let targetWmHeight = 0;
 
-                // if width > height, use width as reference.
-                if (width > height) {
-                    targetWmWidth = width * rateW;
-                    targetWmHeight = targetWmWidth / wmWidth * wmHeight;
-                } else {
-                    targetWmHeight = height * rateH;
-                    targetWmWidth = targetWmHeight / wmHeight * wmWidth;
-                }
+            // if width > height, use width as reference.
+            if (width > height) {
+                targetWmWidth = width * rateW;
+                targetWmHeight = targetWmWidth / wmWidth * wmHeight;
+            } else {
+                targetWmHeight = height * rateH;
+                targetWmWidth = targetWmHeight / wmHeight * wmWidth;
+            }
 
-                if (!targetWmHeight || !targetWmWidth) {
-                    callback(new Error('Image size error.'))
-                    return;
-                }
-                
-                targetWmHeight = Math.ceil(targetWmHeight);
-                targetWmWidth = Math.ceil(targetWmWidth);
+            targetWmHeight = Math.ceil(targetWmHeight);
+            targetWmWidth = Math.ceil(targetWmWidth);
 
-                const targetX = Math.ceil(width - targetWmWidth);
-                const targetY = Math.ceil(height - targetWmHeight);
+            const tempDir = config.ConfigManager.getInstance().getImageTempPath();
+            const fullTargetTempWmPath = path.join(tempDir, `wm_${new Date().getTime()}.png`);
 
-                const tempDir = config.ConfigManager.getInstance().getImageTempPath();
-                const fullTargetTempWmPath = path.join(tempDir, `wm_${new Date() * 1}.png`);
+            // Resize the watermark and save it temporarily
+            await sharp(WATERMARK_PATH)
+                .resize(targetWmWidth, targetWmHeight)
+                .toFile(fullTargetTempWmPath);
 
-                /**
-                 * 1. Resize the watermark as a temporary file.
-                 * 2. Do mosaic (use original image and resized watermark).
-                 * 3. Delete temporary watermark.
-                 */
-                const resizedWm = gm(WATERMARK_PATH).resize(targetWmWidth, targetWmHeight).write(fullTargetTempWmPath, (err) => {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    gm(rawImagePath).composite(fullTargetTempWmPath)
-                        .geometry(`+${targetX}+${targetY}`)
-                        .write(outputPath, (err) => {
-                            if (err) {
-                                LogUtil.error(err);
-                            }
-                            if (fs.existsSync(fullTargetTempWmPath)) {
-                                fs.unlinkSync(fullTargetTempWmPath);
-                            }
-                            callback(err);
-                        });
-                });
-            });
-        });
+            // Composite the watermark onto the original image
+            await sharp(rawImagePath)
+                .composite([{ input: fullTargetTempWmPath, gravity: 'southeast' }]) // `gravity` controls the position
+                .toFile(outputPath);
+
+            // Clean up the temporary watermark file
+            if (fs.existsSync(fullTargetTempWmPath)) {
+                fs.unlinkSync(fullTargetTempWmPath);
+            }
+
+            callback(null);
+        } catch (err) {
+            LogUtil.error(err);
+            callback(err);
+        }
     }
 
     /**
      * Get image size.
      * 
-     * @param {string} path 
-     * @param {function(number, number)} callback 
+     * @param {string} imagePath 
+     * @returns {Promise<{width: number, height: number}>}
      * @private
      */
-    static _getImageSize(path, callback) {
-        gm(path).size((err, imageSize) => {
-            if (err) {
-                LogUtil.error(err);
-                callback(-1, -1);
-            } else {
-                callback(imageSize.width, imageSize.height);
-            }
-        });
+    static async _getImageSize(imagePath) {
+        try {
+            const { width, height } = await sharp(imagePath).metadata();
+            return { width, height };
+        } catch (err) {
+            LogUtil.error(err);
+            return { width: -1, height: -1 };
+        }
     }
 }
 

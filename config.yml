@@ -28,14 +28,14 @@ watermark_path: './watermark.png'
 # Add watermark after upload an image automatically
 add_watermark: true
 
-# Whether or not generate webp format image
-generate_webp: true
+# Whether or not generate webp/avif/heic format image
+generate_compressed: true
 
-# Whether or not generate avif format image
-generate_avif: true
+# Formats for compressing
+compressed_formats: ['.webp', '.avif', '.heic']
 
 # The URL prefix of your image server for fetching image
-image_server_url_prefix: 'https://localhost:18000/'
+image_server_url_prefix: 'http://localhost:18000/'
 
 # Max upload image file size(MB)
 max_image_size: 50
