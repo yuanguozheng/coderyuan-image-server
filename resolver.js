@@ -70,44 +70,38 @@ class ImageResolver {
                 const accepts = req.headers['accept'];
                 LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
-                if (!accepts || accepts.length === 0) {
-                    sendNormalFile(this._fileServer);
-                    return;
-                }
-                const userAgent = req.headers['user-agent'];
-                if (BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
-                    const heicPath = this._getImagePath(true, ".heic", pathInfo);
-                    const relativeHeicPath = this._getImagePath(false, ".heic", pathInfo);
-                    if (fs.existsSync(heicPath)) {
-                        LogUtil.info(`URL: ${req.url} Sarafi send .heic`);
-                        this._fileServer.serveFile(relativeHeicPath, 200, { 'Content-Type': "image/heic" }, req, res);
-                        return;
-                    }
-                } else {
-                    for (let mime in EXT_MAP) {
-                        if (accepts.indexOf(mime) !== -1) {
-                            const ext = EXT_MAP[mime];
-                            const fullCompressedFilePath = this._getImagePath(true, ext, pathInfo);
-                            const relativeCompressedFilePath = this._getImagePath(false, ext, pathInfo);
-                            if (fs.existsSync(fullCompressedFilePath)) {
-                                LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send ${ext}`);
-                                this._fileServer.serveFile(relativeCompressedFilePath, 200, { 'Content-Type': mime }, req, res);
-                                return;
+                if (accepts && accepts.length !== 0) {
+                    const userAgent = req.headers['user-agent'];
+                    if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
+                        const heicPath = this._getImagePath(true, ".heic", pathInfo);
+                        const relativeHeicPath = this._getImagePath(false, ".heic", pathInfo);
+                        if (fs.existsSync(heicPath)) {
+                            LogUtil.info(`URL: ${req.url} Sarafi send .heic`);
+                            this._fileServer.serveFile(relativeHeicPath, 200, { 'Content-Type': "image/heic" }, req, res);
+                            return;
+                        }
+                    } else {
+                        for (let mime in EXT_MAP) {
+                            if (accepts.indexOf(mime) !== -1) {
+                                const ext = EXT_MAP[mime];
+                                const fullCompressedFilePath = this._getImagePath(true, ext, pathInfo);
+                                const relativeCompressedFilePath = this._getImagePath(false, ext, pathInfo);
+                                if (fs.existsSync(fullCompressedFilePath)) {
+                                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send ${ext}`);
+                                    this._fileServer.serveFile(relativeCompressedFilePath, 200, { 'Content-Type': mime }, req, res);
+                                    return;
+                                }
                             }
                         }
                     }
                 }
-                sendNormalFile(this._fileServer);
-
-                function sendNormalFile(server) {
-                    if (fs.existsSync(fullNormalFilePath)) { // If not (like Safari), return original file (png/jpg).
-                        LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
-                        server.serveFile(relativeNormalFilePath, 200, {}, req, res);
-                    } else { // file not existed.
-                        LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
-                        res.statusCode = 404;
-                        res.end();
-                    }
+                if (fs.existsSync(fullNormalFilePath)) { // If not (like Safari), return original file (png/jpg).
+                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
+                    server.serveFile(relativeNormalFilePath, 200, {}, req, res);
+                } else { // file not existed.
+                    LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
+                    res.statusCode = 404;
+                    res.end();
                 }
             }).resume();
         }).listen(SERVER_PORT, hostname, (err) => {
