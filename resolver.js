@@ -97,7 +97,7 @@ class ImageResolver {
                 }
                 if (fs.existsSync(fullNormalFilePath)) { // If not (like Safari), return original file (png/jpg).
                     LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
-                    server.serveFile(relativeNormalFilePath, 200, {}, req, res);
+                    this._fileServer.serveFile(relativeNormalFilePath, 200, {}, req, res);
                 } else { // file not existed.
                     LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
                     res.statusCode = 404;
