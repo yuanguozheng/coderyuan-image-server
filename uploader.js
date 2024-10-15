@@ -63,7 +63,7 @@ app.use('/', (req, res) => {
             return;
         }
         ext = ext.toLowerCase();
-        if (!AVAILABLE_EXTENSIONS.includes(ext)) {
+        if (AVAILABLE_EXTENSIONS.indexOf(ext) === -1) {
             LogUtil.error("Upload unsupported file type: " + ext);
             doResponse(UniResult.Errors.PARAM_ERROR);
             return;

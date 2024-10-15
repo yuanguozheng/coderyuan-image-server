@@ -58,7 +58,7 @@ class ImageResolver {
                 const url = URL.parse(req.url);
 
                 const pathInfo = path.parse(url.pathname);
-                if (!pathInfo || !pathInfo.name || !pathInfo.ext || !AVAILABLE_EXTENSIONS.includes(pathInfo.ext)) {
+                if (!pathInfo || !pathInfo.name || !pathInfo.ext || AVAILABLE_EXTENSIONS.indexOf(pathInfo.ext) === -1) {
                     LogUtil.error(`URL: ${req.url} is illegal.`);
                     res.statusCode = 404;
                     res.end();
