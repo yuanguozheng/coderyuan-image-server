@@ -12,7 +12,7 @@ const URL_RREFIX = config.ConfigManager.getInstance().getValue(config.keys.KEY_U
 const MAX_IMAGE_SIZE = config.ConfigManager.getInstance().getValue(config.keys.KEY_MAX_IMAGE_SIZE);
 const COMPRESS_FORMATS = config.ConfigManager.getInstance().getValue(config.keys.KEY_FORMATS);
 const GEN_COMPRESS = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_COMPRESS);
-const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.keys.KEY_AVAILABLE_EXTENSIONS);
+const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.keys.KEY_AVAILABLE_EXT);
 
 const WaterMarker = require('./watermarker');
 
@@ -63,7 +63,7 @@ app.use('/', (req, res) => {
             return;
         }
         ext = ext.toLowerCase();
-        if (AVAILABLE_EXTENSIONS.indexOf(ext) === -1) {
+        if (!AVAILABLE_EXTENSIONS.includes(ext)) {
             LogUtil.error("Upload unsupported file type: " + ext);
             doResponse(UniResult.Errors.PARAM_ERROR);
             return;

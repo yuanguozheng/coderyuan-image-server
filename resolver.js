@@ -17,7 +17,7 @@ const EXT_MAP = {
     "image/heif": '.heic',
 };
 
-const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.keys.KEY_AVAILABLE_EXTENSIONS);
+const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.keys.KEY_AVAILABLE_EXT);
 
 /**
  * Parse url and send image.
@@ -58,7 +58,7 @@ class ImageResolver {
                 const url = URL.parse(req.url);
 
                 const pathInfo = path.parse(url.pathname);
-                if (!pathInfo || !pathInfo.name || !pathInfo.ext || AVAILABLE_EXTENSIONS.indexOf(pathInfo.ext) === -1) {
+                if (!pathInfo || !pathInfo.name || !pathInfo.ext || !AVAILABLE_EXTENSIONS.includes(pathInfo.ext)) {
                     LogUtil.error(`URL: ${req.url} is illegal.`);
                     res.statusCode = 404;
                     res.end();
