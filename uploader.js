@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
-const sharp = require('sharp');
 
 const LogUtil = require('./log');
 
@@ -17,6 +16,7 @@ const GEN_COMPRESS = config.ConfigManager.getInstance().getValue(config.keys.KEY
 const WaterMarker = require('./watermarker');
 
 const UniResult = require('./universal-result');
+const converter = require('./converter');
 
 /**
  * Init multer.
@@ -39,8 +39,6 @@ const upload = multer({
 }).single('image');
 
 const app = express();
-sharp.concurrency(1);
-sharp.cache(false);
 
 /**
  * Router
@@ -95,12 +93,7 @@ app.use('/', (req, res) => {
 
     const processFormats = (imageFilePath, fileName) => {
         if (GEN_COMPRESS) {
-            let sharpImage = sharp(imageFilePath);
-            COMPRESS_FORMATS.forEach(ext => {
-                sharpImage.clone().toFile(imageFilePath + ext, (err) => {
-                    if (err) LogUtil.error(err);
-                });
-            });
+            converter(COMPRESS_FORMATS, imageFilePath)
         }
        
         doResponse({
