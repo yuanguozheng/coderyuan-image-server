@@ -1,20 +1,22 @@
 # coderyuan-image-server
 
-一个使用 Node.js 开发的图片服务器！可以根据浏览器的不同，实现同一个 URL，返回 WebP/AVIF 格式或者 PNG/JPG/GIF格式的图片数据！
+一个使用 Node.js 开发的图片服务器！可以根据浏览器的不同，实现同一个 URL，返回 WebP/AVIF/HEIC 格式或者 PNG/JPG/GIF格式的图片数据！
 
 [English](README.md)
 
-## 环境要求:
+## 环境要求
 
-**操作系统**: Linux 或 macOS，暂不支持 Windows.
+**操作系统**
 
-**libvips**:
+Linux 或 macOS，暂不支持 Windows.
 
-macOS：
+**libvips**
+
+macOS
 
     brew install vips
 
-Linux：
+Linux
    
 建议使用源码的方式进行安装。
    
@@ -22,31 +24,31 @@ Linux：
 
 如果 libvips 没有正确安装或缺少 HEIC、AVIF 格式的支持，将无法进行图片转换！
 
-## 功能:
+## 功能
 
-### 图片传输服务：
+### 图片传输服务
 
-coderyuan-image-server 会解析 HTTP 请求头中的**accepts**字段, 根据是否有**image/webp**这项，来自动决定返回 PNG/JPG/GIF 格式的图片流数据，还是返回体积非常小的 WebP/AVIF 格式图片数据（前提是指定的目录中存在 WebP/AVIF 格式图片）。
+coderyuan-image-server 会解析 HTTP 请求头中的 **accepts** 字段, 来自动决定返回 PNG/JPG/GIF 格式的图片流数据，还是返回体积非常小的 WebP/AVIF/HEIC 格式图片数据（前提是指定的目录中存在 WebP/AVIF/HEIC 格式图片）。
 
-#### Chrome浏览器中的效果:
+#### Chrome
 
 ![](art/chrome.png)
 
-#### Firefox浏览器中的效果:
+#### Firefox
 
 ![](art/firefox.png)
 
-### Safari:
+### Safari
 
 ![](art/safari.png)
 
-### Edge:
+### Edge
 
 ![](art/edge.png)
 
-### 图片上传服务：
+### 图片上传服务
 
-coderyuan-image-server 提供带 AccessToken 的图片上传服务，支持将你提交的符合配置要求的图片，存入指定的服务器目录。同时，你也可以根据参数，指定是否添加你指定的水印图片、是否自动转换成 WebP 格式。
+coderyuan-image-server 提供带 AccessToken 的图片上传服务，支持将你提交的符合配置要求的图片，存入指定的服务器目录。同时，你也可以根据参数，指定是否添加你指定的水印图片、是否自动转换成 WebP/AVIF/HEIC 格式。
 
 所有的配置，都保存在 **[config.yml](config.yml)** 文件中
 
@@ -65,7 +67,7 @@ curl -F "image=@IMG_20171122_212957.jpg" http://localhost:18001/?accessToken=000
 }
 ````
 
-## 运行方法:
+## 运行方法
 
 #### 1. Clone
 
@@ -96,3 +98,29 @@ npm i -g node-addon-api node-gyp
 ```
 
 运行起来以后，配置一下 nginx 做反向代理，就可以正常访问了！
+
+## 配置
+
+所有支持的配置都在文件 **[config.yml](config.yml)** 中，你可以按照注释说明，并根据自己的需求进行修改。
+
+以下是一些在首次运行时建议修改的配置：
+
+### `img_dir`
+
+用于保存或获取图片的绝对路径或相对路径。建议修改为你的服务器上的实际目录。
+
+### `access_token`
+
+用于上传图片的 AccessToken，出于安全考虑，建议修改为随机字符串。
+
+### `watermark_path`
+
+水印图片的路径，需要修改为你自己的水印图片。
+
+### `image_server_url_prefix`
+
+用于获取图片的 URL 前缀。如果你使用 nginx 做反向代理，应当和你实际配置的域名相同。
+
+## 协议
+
+MIT

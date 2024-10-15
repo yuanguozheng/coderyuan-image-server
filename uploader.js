@@ -12,6 +12,7 @@ const URL_RREFIX = config.ConfigManager.getInstance().getValue(config.keys.KEY_U
 const MAX_IMAGE_SIZE = config.ConfigManager.getInstance().getValue(config.keys.KEY_MAX_IMAGE_SIZE);
 const COMPRESS_FORMATS = config.ConfigManager.getInstance().getValue(config.keys.KEY_FORMATS);
 const GEN_COMPRESS = config.ConfigManager.getInstance().getValue(config.keys.KEY_GEN_COMPRESS);
+const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.keys.KEY_AVAILABLE_EXTENSIONS);
 
 const WaterMarker = require('./watermarker');
 
@@ -57,6 +58,16 @@ app.use('/', (req, res) => {
             return;
         }
         let ext = path.parse(file.originalname).ext;
+        if (!ext || ext.length === 0) {
+            doResponse(UniResult.Errors.PARAM_ERROR);
+            return;
+        }
+        ext = ext.toLowerCase();
+        if (!AVAILABLE_EXTENSIONS.includes(ext)) {
+            LogUtil.error("Upload unsupported file type: " + ext);
+            doResponse(UniResult.Errors.PARAM_ERROR);
+            return;
+        }
         let ts = (new Date() * 1);
         let fileName = `${ts}${ext}`;
         let imageFilePath = path.join(TARGET_DIR, fileName);
@@ -95,7 +106,7 @@ app.use('/', (req, res) => {
         if (GEN_COMPRESS) {
             converter(COMPRESS_FORMATS, imageFilePath)
         }
-       
+
         doResponse({
             url: `${URL_RREFIX}${fileName}`
         });

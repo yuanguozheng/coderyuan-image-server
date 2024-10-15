@@ -22,6 +22,9 @@ resolver_enable: true
 # Enable Image Uploader Server
 uploader_enable: true
 
+# Available image extensions
+available_image_extensions: ['.jpg', '.jpeg', '.png', '.gif']
+
 # Path of watermark image
 watermark_path: './watermark.png'
 

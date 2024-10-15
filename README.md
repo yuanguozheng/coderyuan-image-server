@@ -4,17 +4,19 @@ A simple image server by using Node.js!
 
 [中文文档](README_cn.md)
 
-## Requirements:
+## Requirements
 
-**OS**: Linux or macOS, not support Windows.
+**OS**
 
-**libvips**:
+Linux or macOS, not support Windows.
 
-macOS:
+**libvips**
+
+macOS
 
     brew install vips
 
-Linux:
+Linux
 
 Building from sources is suggested.
    
@@ -22,29 +24,29 @@ Please follow the documents on libvips officical site. https://www.libvips.org/i
 
 Image converting will not available while libvips has not been installed or lacking some format support.
 
-## Features:
+## Features
 
-### Image Transmit Service:
+### Image Transmit Service
 
 Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF image or WebP/HEIC/AVIF image (if file existed) automaticly.
 
-#### Chrome:
+#### Chrome
 
 ![](art/chrome.png)
 
-#### Firefox:
+#### Firefox
 
 ![](art/firefox.png)
 
-### Safari:
+### Safari
 
 ![](art/safari.png)
 
-### Edge:
+### Edge
 
 ![](art/edge.png)
 
-### Image Upload Service:
+### Image Upload Service
 
 The server provides a HTTP API to POST an image file with AccessToken. At the same time, you can set whether or not attaching a watermark and converting to WebP format.
 
@@ -67,7 +69,7 @@ After uploading, server will response:
 Field **URL** means the full URL for fetching image.
 
 
-## Run:
+## Run
 
 #### 1. Clone
 
@@ -98,3 +100,29 @@ If the server has been launched normally, the terminal will get:
 ```
 
 After running server, you can config reverse proxy for nginx to access by your domain!
+
+## Configurations
+
+All supported configurations are save in `config.yml`, you can modify it to fit your needs as described in the comments.
+
+Recommended configuration items to modify when using for the first time:
+
+### `img_dir`
+
+The absolute or relative path for saving or fetching images. Must be changed for your own environment.
+
+### `access_token`
+
+The access token for uploading images. For security reasons, you should change it to a random string.
+
+### `watermark_path`
+
+The path for watermark image. Need to change it to your own watermark image.
+
+### `image_server_url_prefix`
+
+The URL prefix for fetching images. If you are using nginx to reverse proxy, it should be the same as your domain name.
+
+## License
+
+MIT
