@@ -55,63 +55,81 @@ class ImageResolver {
 
         http.createServer((req, res) => {
             req.addListener('end', () => {
-                const url = URL.parse(req.url);
-
-                const pathInfo = path.parse(url.pathname);
-                if (!pathInfo || !pathInfo.name || !pathInfo.ext || !AVAILABLE_EXTENSIONS.includes(pathInfo.ext)) {
-                    LogUtil.error(`URL: ${req.url} is illegal.`);
-                    res.statusCode = 404;
-                    res.end();
-                    return;
-                }
-
-                const fullNormalFilePath = this._getImagePath(true, null, pathInfo);
-                const relativeNormalFilePath = this._getImagePath(false, null, pathInfo);
-
-                const accepts = req.headers['accept'];
-                LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
-
-                if (accepts && accepts.length !== 0) {
-                    const userAgent = req.headers['user-agent'];
-                    if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
-                        const heicPath = this._getImagePath(true, ".heic", pathInfo);
-                        const relativeHeicPath = this._getImagePath(false, ".heic", pathInfo);
-                        if (fs.existsSync(heicPath)) {
-                            LogUtil.info(`URL: ${req.url} Sarafi send .heic`);
-                            this._fileServer.serveFile(relativeHeicPath, 200, { 'Content-Type': "image/heic" }, req, res);
-                            return;
-                        }
-                    } else {
-                        for (let mime in EXT_MAP) {
-                            if (accepts.indexOf(mime) !== -1) {
-                                const ext = EXT_MAP[mime];
-                                const fullCompressedFilePath = this._getImagePath(true, ext, pathInfo);
-                                const relativeCompressedFilePath = this._getImagePath(false, ext, pathInfo);
-                                if (fs.existsSync(fullCompressedFilePath)) {
-                                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send ${ext}`);
-                                    this._fileServer.serveFile(relativeCompressedFilePath, 200, { 'Content-Type': mime }, req, res);
-                                    return;
+                try {
+                    const url = URL.parse(req.url);
+                    const pathInfo = path.parse(url.pathname);
+        
+                    if (!pathInfo || !pathInfo.name || !pathInfo.ext || !AVAILABLE_EXTENSIONS.includes(pathInfo.ext)) {
+                        LogUtil.error(`URL: ${req.url} is illegal.`);
+                        res.statusCode = 404;
+                        res.end();
+                        return;
+                    }
+        
+                    const fullNormalFilePath = this._getImagePath(true, null, pathInfo);
+                    const relativeNormalFilePath = this._getImagePath(false, null, pathInfo);
+        
+                    const accepts = req.headers['accept'];
+                    LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
+        
+                    if (accepts && accepts.length !== 0) {
+                        const userAgent = req.headers['user-agent'];
+                        if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
+                            const heicPath = this._getImagePath(true, ".heic", pathInfo);
+                            const relativeHeicPath = this._getImagePath(false, ".heic", pathInfo);
+        
+                            if (fs.existsSync(heicPath)) {
+                                LogUtil.info(`URL: ${req.url} Safari sends .heic`);
+                                if (!res.headersSent) {
+                                    this._fileServer.serveFile(relativeHeicPath, 200, { 'Content-Type': "image/heic" }, req, res);
+                                }
+                                return;
+                            }
+                        } else {
+                            for (let mime in EXT_MAP) {
+                                if (accepts.indexOf(mime) !== -1) {
+                                    const ext = EXT_MAP[mime];
+                                    const fullCompressedFilePath = this._getImagePath(true, ext, pathInfo);
+                                    const relativeCompressedFilePath = this._getImagePath(false, ext, pathInfo);
+        
+                                    if (fs.existsSync(fullCompressedFilePath)) {
+                                        LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${ext}`);
+                                        if (!res.headersSent) {
+                                            this._fileServer.serveFile(relativeCompressedFilePath, 200, { 'Content-Type': mime }, req, res);
+                                        }
+                                        return;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (fs.existsSync(fullNormalFilePath)) { // If not (like Safari), return original file (png/jpg).
-                    LogUtil.info(`URL: ${req.url} Accepts: ${accepts} send normal`);
-                    this._fileServer.serveFile(relativeNormalFilePath, 200, {}, req, res);
-                } else { // file not existed.
-                    LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
-                    res.statusCode = 404;
-                    res.end();
+        
+                    if (fs.existsSync(fullNormalFilePath)) {
+                        LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends normal`);
+                        if (!res.headersSent) {
+                            this._fileServer.serveFile(relativeNormalFilePath, 200, {}, req, res);
+                        }
+                    } else {
+                        LogUtil.error(`URL: ${req.url} Accepts: ${accepts} file not found, send nothing`);
+                        res.statusCode = 404;
+                        res.end();
+                    }
+                } catch (error) {
+                    LogUtil.error(`Error handling request: ${error}`);
+                    if (!res.headersSent) {
+                        res.statusCode = 500;
+                        res.end('Internal Server Error');
+                    }
                 }
             }).resume();
         }).listen(SERVER_PORT, hostname, (err) => {
             if (err) {
-                LogUtil.error(err)
+                LogUtil.error(err);
             } else {
                 LogUtil.info(`Resolver service has been started, port: ${SERVER_PORT}`);
             }
         });
+        
     }
 }
 
