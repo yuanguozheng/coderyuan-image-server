@@ -8,21 +8,19 @@
 
 **操作系统**: Linux 或 macOS，暂不支持 Windows.
 
-**GraphicsMagick** or **ImageMagick**:
+**libvips**:
 
-接着需要下载安装[GraphicsMagick](http://www.graphicsmagick.org/) 或者 [ImageMagick](http://www.imagemagick.org/)，如果你使用 macOS，使用[Homebrew](http://mxcl.github.io/homebrew/)来按以下命令安装也行：
+macOS：
 
-    brew install imagemagick
-    brew install graphicsmagick
+    brew install vips
 
-如果希望 ImageMagick 支持 WebP，需要添加以下参数：
-
-    brew install imagemagick --with-webp
-
-在 CentOS 上使用以下命令安装：
+Linux：
    
-    sudo yum install GraphicsMagick
-    sudo yum install ImageMagick
+建议使用源码的方式进行安装。
+   
+请根据 libvips 官方的文档进行操作：https://www.libvips.org/install.html
+
+如果 libvips 没有正确安装或缺少 HEIC、AVIF 格式的支持，将无法进行图片转换！
 
 ## 功能:
 
@@ -38,6 +36,13 @@ coderyuan-image-server 会解析 HTTP 请求头中的**accepts**字段, 根据�
 
 ![](art/firefox.png)
 
+### Safari:
+
+![](art/safari.png)
+
+### Edge:
+
+![](art/edge.png)
 
 ### 图片上传服务：
 
@@ -68,11 +73,17 @@ curl -F "image=@IMG_20171122_212957.jpg" http://localhost:18001/?accessToken=000
 git clone https://github.com/yuanguozheng/coderyuan-image-server && cd coderyuan-image-server
 ```
 
-#### 2. 安装依赖
+#### 2. 安装全局的 Node.js 依赖
+
+```bash
+npm i -g node-addon-api node-gyp
+```
+
+#### 3. 安装依赖
 
 可以使用 ```yarn``` 或 ```npm install```
 
-#### 3. 运行
+#### 4. 运行
 
 ```npm start``` 或者使用 ```forever start app.js``` 来使用守护进程运行
 

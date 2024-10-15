@@ -8,27 +8,25 @@ A simple image server by using Node.js!
 
 **OS**: Linux or macOS, not support Windows.
 
-**GraphicsMagick** or **ImageMagick**:
+**libvips**:
 
-Download and install [GraphicsMagick](http://www.graphicsmagick.org/) or [ImageMagick](http://www.imagemagick.org/). In Mac OS X, you can simply use [Homebrew](http://mxcl.github.io/homebrew/) and do:
+macOS:
 
-    brew install imagemagick
-    brew install graphicsmagick
+    brew install vips
 
-If you want WebP support with ImageMagick, you must add the WebP option:
+Linux:
 
-    brew install imagemagick --with-webp
-
-On CentOS:
+Building from sources is suggested.
    
-    sudo yum install GraphicsMagick
-    sudo yum install ImageMagick
+Please follow the documents on libvips officical site. https://www.libvips.org/install.html
+
+Image converting will not available while libvips has not been installed or lacking some format support.
 
 ## Features:
 
 ### Image Transmit Service:
 
-Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF image or WebP image (if file existed) automaticly.
+Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF image or WebP/HEIC/AVIF image (if file existed) automaticly.
 
 #### Chrome:
 
@@ -38,6 +36,13 @@ Parsing HTTP request's headers, according to **Accepts**, response a PNG/JPG/GIF
 
 ![](art/firefox.png)
 
+### Safari:
+
+![](art/safari.png)
+
+### Edge:
+
+![](art/edge.png)
 
 ### Image Upload Service:
 
@@ -70,11 +75,17 @@ Field **URL** means the full URL for fetching image.
 git clone https://github.com/yuanguozheng/coderyuan-image-server && cd coderyuan-image-server
 ```
 
-#### 2. Install Dependencies
+#### 2. Install Global Node.js Dependencies
+
+```bash
+npm i -g node-addon-api node-gyp
+```
+
+#### 3. Install Dependencies
 
 Use ```yarn``` or ```npm install```
 
-#### 3. Start
+#### 4. Start
 
 ```npm start```
 

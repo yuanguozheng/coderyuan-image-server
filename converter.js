@@ -32,10 +32,10 @@ module.exports = (targetExts, inputImagePath) => {
             .pipe(createSharp(ext))
             .pipe(output)
             .on('finish', () => {
-                LogUtil.info(`转换 ${inputImagePath} 为 ${outputImagePath}`);
+                LogUtil.info(`Converted ${inputImagePath} to ${outputImagePath}.`);
             })
             .on('error', (err) => {
-                LogUtil.error(`转换 ${inputImagePath} 为 ${outputImagePath} 失败`);
+                LogUtil.error(`Failed to converting ${inputImagePath} to ${outputImagePath}!`);
             })
             .on('close', () => {
                 if (global.gc) {
