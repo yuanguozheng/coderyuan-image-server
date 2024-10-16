@@ -36,11 +36,12 @@ class ImageResolver extends BaseService {
         LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
         const supportedExts = getSupportedExtensions(accepts);
-        for (let ext in supportedExts) {
-            const fullCompressedFilePath = getImagePath(true, ext, pathInfo);
+        for (let index = 0; index < supportedExts.length; index++) {
+            const element = supportedExts[index];
+            const fullCompressedFilePath = getImagePath(true, element.ext, pathInfo);
             if (fs.existsSync(fullCompressedFilePath)) {
-                LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${ext}`);
-                res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': mime } });
+                LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${element.ext}`);
+                res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': element.mime } });
                 return;
             }
         }
@@ -92,7 +93,10 @@ function getSupportedExtensions(acceptHeader) {
         if (char === ',' || i === acceptHeader.length) {
             type = acceptHeader.slice(start, i).split(';')[0].trim();
             if (EXT_MAP[type]) {
-                result.push(EXT_MAP[type]);
+                result.push({
+                    ext: EXT_MAP[type],
+                    mime: type,
+                });
             }
             start = i + 1;
         }
