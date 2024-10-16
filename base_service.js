@@ -38,6 +38,11 @@ class BaseService {
         return 80;
     }
 
+    /**
+     * abstract method for handling express request
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
+     */
     handleRequest(req, res) {
     }
 }

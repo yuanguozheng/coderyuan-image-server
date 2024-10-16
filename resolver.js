@@ -21,21 +21,6 @@ const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.
  */
 class ImageResolver extends BaseService {
 
-    /**
-     * Get the full image file path on the server.
-     * 
-     * @param {boolean} isAbsolutePath 
-     * @param {string} extension 
-     * @param {ParsedPath} pathInfo 
-     */
-    static _getImagePath(isAbsolutePath, extension, pathInfo) {
-        return path.join(
-            isAbsolutePath ? RESOURCE_ROOT : '',
-            pathInfo.dir,
-            pathInfo.name + pathInfo.ext + (extension ? extension : '')
-        );
-    };
-
     handleRequest(req, res) {
         const url = req.url
         const pathInfo = path.parse(url);
@@ -46,33 +31,28 @@ class ImageResolver extends BaseService {
             return;
         }
 
-        const fullNormalFilePath = ImageResolver._getImagePath(true, null, pathInfo);
-
+        const fullNormalFilePath = getImagePath(true, null, pathInfo);
         const accepts = req.headers['accept'];
         LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
-        if (accepts && accepts.length !== 0) {
-            for (let mime in EXT_MAP) {
-                if (accepts.indexOf(mime) !== -1) {
-                    const ext = EXT_MAP[mime];
-                    const fullCompressedFilePath = ImageResolver._getImagePath(true, ext, pathInfo);
-
-                    if (fs.existsSync(fullCompressedFilePath)) {
-                        LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${ext}`);
-                        res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': mime } });
-                        return;
-                    }
-                }
+        const supportedExts = getSupportedExtensions(accepts);
+        for (let ext in supportedExts) {
+            const fullCompressedFilePath = getImagePath(true, ext, pathInfo);
+            if (fs.existsSync(fullCompressedFilePath)) {
+                LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${ext}`);
+                res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': mime } });
+                return;
             }
-            const userAgent = req.headers['user-agent'];
-            if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
-                const heicPath = ImageResolver._getImagePath(true, ".heic", pathInfo);
+        }
 
-                if (fs.existsSync(heicPath)) {
-                    LogUtil.info(`URL: ${req.url} Safari sends .heic`);
-                    res.sendFile(heicPath, { headers: { 'Content-Type': "image/heic" } });
-                    return;
-                }
+        const userAgent = req.headers['user-agent'];
+        if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
+            const heicPath = getImagePath(true, ".heic", pathInfo);
+
+            if (fs.existsSync(heicPath)) {
+                LogUtil.info(`URL: ${req.url} Safari sends .heic`);
+                res.sendFile(heicPath, { headers: { 'Content-Type': "image/heic" } });
+                return;
             }
         }
 
@@ -96,5 +76,43 @@ class ImageResolver extends BaseService {
         return config.ConfigManager.getInstance().getValue(config.keys.KEY_RESOLVE_SERVER_PORT);
     }
 }
+
+const MAX_ACCEPT_LENGTH = 1000; // 定义 Accept 头的最大长度
+
+function getSupportedExtensions(acceptHeader) {
+    if (acceptHeader.length > MAX_ACCEPT_LENGTH) {
+        LogUtil.error(`Accept header is too long, length: ${acceptHeader.length}. Truncating or ignoring.`);
+        return [];
+    }
+    const result = [];
+    let start = 0;
+    let type = '';
+    for (let i = 0; i <= acceptHeader.length; i++) {
+        const char = acceptHeader[i];
+        if (char === ',' || i === acceptHeader.length) {
+            type = acceptHeader.slice(start, i).split(';')[0].trim();
+            if (EXT_MAP[type]) {
+                result.push(EXT_MAP[type]);
+            }
+            start = i + 1;
+        }
+    }
+    return result;
+}
+
+/**
+ * Get the full image file path on the server.
+ * 
+ * @param {boolean} isAbsolutePath 
+ * @param {string} extension 
+ * @param {ParsedPath} pathInfo 
+ */
+function getImagePath(isAbsolutePath, extension, pathInfo) {
+    return path.join(
+        isAbsolutePath ? RESOURCE_ROOT : '',
+        pathInfo.dir,
+        pathInfo.name + pathInfo.ext + (extension ? extension : '')
+    );
+};
 
 module.exports = ImageResolver;

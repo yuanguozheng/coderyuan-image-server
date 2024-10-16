@@ -1,7 +1,6 @@
 const fs = require('fs');
 const sharp = require('sharp');
 const LogUtil = require('./log');
-const { GCProfiler } = require('v8');
 
 sharp.concurrency(1);
 sharp.cache(false);
