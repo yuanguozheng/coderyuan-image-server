@@ -9,9 +9,9 @@ const RESOURCE_ROOT = config.ConfigManager.getInstance().getValue(config.keys.KE
 
 const EXT_MAP = {
     "image/avif": ".avif",
-    "image/webp": ".webp",
     "image/heic": '.heic',
     "image/heif": '.heic',
+    "image/webp": ".webp",
 };
 
 const AVAILABLE_EXTENSIONS = config.ConfigManager.getInstance().getValue(config.keys.KEY_AVAILABLE_EXT);
@@ -52,6 +52,18 @@ class ImageResolver extends BaseService {
         LogUtil.info(`Target File Path: ${fullNormalFilePath}`);
 
         if (accepts && accepts.length !== 0) {
+            for (let mime in EXT_MAP) {
+                if (accepts.indexOf(mime) !== -1) {
+                    const ext = EXT_MAP[mime];
+                    const fullCompressedFilePath = ImageResolver._getImagePath(true, ext, pathInfo);
+
+                    if (fs.existsSync(fullCompressedFilePath)) {
+                        LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${ext}`);
+                        res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': mime } });
+                        return;
+                    }
+                }
+            }
             const userAgent = req.headers['user-agent'];
             if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
                 const heicPath = ImageResolver._getImagePath(true, ".heic", pathInfo);
@@ -61,22 +73,10 @@ class ImageResolver extends BaseService {
                     res.sendFile(heicPath, { headers: { 'Content-Type': "image/heic" } });
                     return;
                 }
-            } else {
-                for (let mime in EXT_MAP) {
-                    if (accepts.indexOf(mime) !== -1) {
-                        const ext = EXT_MAP[mime];
-                        const fullCompressedFilePath = ImageResolver._getImagePath(true, ext, pathInfo);
-
-                        if (fs.existsSync(fullCompressedFilePath)) {
-                            LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${ext}`);
-                            res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': mime } });
-                            return;
-                        }
-                    }
-                }
             }
         }
 
+        // No accepts maybe not a browser, send normal image
         if (fs.existsSync(fullNormalFilePath)) {
             LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends normal`);
             res.sendFile(fullNormalFilePath);
