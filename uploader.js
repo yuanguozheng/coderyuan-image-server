@@ -18,98 +18,108 @@ const WaterMarker = require('./watermarker');
 
 const UniResult = require('./universal-result');
 const converter = require('./converter');
+const BaseService = require('./base_service');
 
-/**
- * Init multer.
- */
-const upload = multer({
-    dest: config.ConfigManager.getInstance().getImageTempPath(),
-    fileFilter: (req, file, callback) => {
-        const pToken = req.query.accessToken;
-        const configToken = config.ConfigManager.getInstance().getValue(config.keys.KEY_ACCESS_TOKEN);
-        // Check token
-        if (pToken !== configToken) {
-            callback(new Error('token is invalid'), false);
-            return;
-        }
-        callback(null, true);
-    },
-    limits: {
-        fileSize: Math.ceil(MAX_IMAGE_SIZE * 1024 * 1024)
-    }
-}).single('image');
+class ImageUploader extends BaseService {
 
-const app = express();
-
-/**
- * Router
- */
-app.use('/', (req, res) => {
-    const noWaterMark = (req.query.nomark === '1');
-    upload(req, res, (err) => {
-        if (err) {
-            LogUtil.error(err);
-            doResponse(null, err);
-            return;
-        }
-        let file = req.file;
-        if (!file) {
-            doResponse(UniResult.Errors.PARAM_ERROR);
-            return;
-        }
-        let ext = path.parse(file.originalname).ext;
-        if (!ext || ext.length === 0) {
-            doResponse(UniResult.Errors.PARAM_ERROR);
-            return;
-        }
-        ext = ext.toLowerCase();
-        if (!AVAILABLE_EXTENSIONS.includes(ext)) {
-            LogUtil.error("Upload unsupported file type: " + ext);
-            doResponse(UniResult.Errors.PARAM_ERROR);
-            return;
-        }
-        let ts = (new Date() * 1);
-        let fileName = `${ts}${ext}`;
-        let imageFilePath = path.join(TARGET_DIR, fileName);
-
-        // If enable watermark, add watermark and save to target path.
-        if (ADD_WATERMARK && !noWaterMark) {
-            WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
-                if (!err) {
-                    processFormats(imageFilePath, fileName);
-                } else {
-                    LogUtil.error(err);
-                    doResponse(null, err);
+    constructor() {
+        super();
+        /**
+         * Init multer.
+         */
+        this.upload = multer({
+            dest: config.ConfigManager.getInstance().getImageTempPath(),
+            fileFilter: (req, file, callback) => {
+                const pToken = req.query.accessToken;
+                const configToken = config.ConfigManager.getInstance().getValue(config.keys.KEY_ACCESS_TOKEN);
+                // Check token
+                if (pToken !== configToken) {
+                    callback(new Error('token is invalid'), false);
+                    return;
                 }
-            });
-        } else {
-            // If not enable watermark or get an error when adding watermark, rename directly.
-            moveFile(file.path, imageFilePath, fileName);
-        }
-    });
+                callback(null, true);
+            },
+            limits: {
+                fileSize: Math.ceil(MAX_IMAGE_SIZE * 1024 * 1024)
+            }
+        }).single('image');
+    }
 
-    const moveFile = (currentPath, destPath, fileName) => {
+    handleRequest(req, res) {
+        const noWaterMark = (req.query.nomark === '1');
+        this.upload(req, res, (err) => {
+            if (err) {
+                LogUtil.error(err);
+                ImageUploader._doResponse(null, err, res);
+                return;
+            }
+            let file = req.file;
+            if (!file) {
+                ImageUploader._doErrResponse(UniResult.Errors.PARAM_ERROR, res);
+                return;
+            }
+            let ext = path.parse(file.originalname).ext;
+            if (!ext || ext.length === 0) {
+                ImageUploader._doErrResponse(UniResult.Errors.PARAM_ERROR, res);
+                return;
+            }
+            ext = ext.toLowerCase();
+            if (!AVAILABLE_EXTENSIONS.includes(ext)) {
+                LogUtil.error("Upload unsupported file type: " + ext);
+                ImageUploader._doErrResponse(UniResult.Errors.PARAM_ERROR, res);
+                return;
+            }
+            let ts = (new Date() * 1);
+            let fileName = `${ts}${ext}`;
+            let imageFilePath = path.join(TARGET_DIR, fileName);
+
+            // If enable watermark, add watermark and save to target path.
+            if (ADD_WATERMARK && !noWaterMark) {
+                WaterMarker.markAndSave(file.path, imageFilePath, (err) => {
+                    if (!err) {
+                        ImageUploader._processFormats(imageFilePath, fileName, res);
+                    } else {
+                        LogUtil.error(err);
+                        ImageUploader._doResponse(null, err, res);
+                    }
+                });
+            } else {
+                // If not enable watermark or get an error when adding watermark, rename directly.
+                ImageUploader._moveFile(file.path, imageFilePath, fileName, res);
+            }
+        });
+    }
+
+    getServiceName() {
+        return 'Image Uploader';
+    }
+
+    getServerPort() {
+        return config.ConfigManager.getInstance().getValue(config.keys.KEY_UPLOADER_SERVER_PORT);
+    }
+
+    static _moveFile(currentPath, destPath, fileName, res) {
         fs.rename(currentPath, destPath, (err) => {
             if (err) {
                 LogUtil.error(err);
-                doResponse(null, err);
+                ImageUploader._doResponse(null, err, res);
                 return;
             } else {
-                doResponse({
+                ImageUploader._doNoErrResponse({
                     url: `${URL_RREFIX}${fileName}`
-                });
+                }, res);
             }
         });
     };
 
-    const processFormats = (imageFilePath, fileName) => {
+    static _processFormats(imageFilePath, fileName, res) {
         if (GEN_COMPRESS) {
             converter(COMPRESS_FORMATS, imageFilePath)
         }
 
-        doResponse({
+        ImageUploader._doNoErrResponse({
             url: `${URL_RREFIX}${fileName}`
-        });
+        }, res);
     };
 
     /**
@@ -117,33 +127,25 @@ app.use('/', (req, res) => {
      * 
      * @param {UniResult} data 
      * @param {Error|null} err 
+     * @param {express.Response} res 
      */
-    const doResponse = (data, err = null) => {
+    static _doResponse(data, err = null, res) {
         if (data) {
             res.json(UniResult.UniResult.getSuccess(data));
         } else {
             res.json(UniResult.UniResult.getError(-1, err.message))
         }
         res.end();
-    };
-});
+    }
 
-/**
- * Start service.
- */
-const startServer = () => {
-    const port = config.ConfigManager.getInstance().getValue(config.keys.KEY_UPLOADER_SERVER_PORT);
-    const hostname = config.ConfigManager.getInstance().getValue(config.keys.KEY_BIND_LOCAL) ? '127.0.0.1' : null;
+    static _doNoErrResponse(data, res) {
+        ImageUploader._doResponse(data, null, res);
+    }
 
-    app.listen(port, hostname, (err) => {
-        if (err) {
-            LogUtil.error(err);
-        } else {
-            LogUtil.info(`Uploader service has been started, port: ${port}`);
-        }
-    });
+    static _doErrResponse(err, res) {
+        res.json(err)
+        res.end();
+    }
 }
 
-module.exports = {
-    startServer: startServer
-};
+module.exports = ImageUploader;

@@ -8,6 +8,6 @@ if (resolverEnable) {
 }
 
 if (uploaderEnable) {
-    const uploader = require('./uploader');
-    uploader.startServer();
+    const ImageUploader = require('./uploader');
+    new ImageUploader().startServer();
 }
