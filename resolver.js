@@ -81,11 +81,10 @@ class ImageResolver extends BaseService {
 const MAX_ACCEPT_LENGTH = 1000; // 定义 Accept 头的最大长度
 
 function getSupportedExtensions(acceptHeader) {
-    if (acceptHeader.length > MAX_ACCEPT_LENGTH) {
-        LogUtil.error(`Accept header is too long, length: ${acceptHeader.length}. Truncating or ignoring.`);
-        return [];
-    }
     const result = [];
+    if (!acceptHeader || acceptHeader.length === 0 || acceptHeader.length > MAX_ACCEPT_LENGTH) {
+        return result;
+    }
     let start = 0;
     let type = '';
     for (let i = 0; i <= acceptHeader.length; i++) {
