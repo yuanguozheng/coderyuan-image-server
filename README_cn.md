@@ -24,6 +24,8 @@ Linux
 
 如果 libvips 没有正确安装或缺少 HEIC、AVIF 格式的支持，将无法进行图片转换！
 
+可以参考：[libvips 安装教程](https://coderyuan.com/2024/10/15/image-converting-by-using-sharp/#%E8%A7%A3%E5%86%B3-libvips-%E9%97%AE%E9%A2%98)
+
 ## 功能
 
 ### 图片传输服务
@@ -69,23 +71,29 @@ curl -F "image=@IMG_20171122_212957.jpg" http://localhost:18001/?accessToken=000
 
 ## 运行方法
 
-#### 1. Clone
+### 1. Clone
 
 ```bash
 git clone https://github.com/yuanguozheng/coderyuan-image-server && cd coderyuan-image-server
 ```
 
-#### 2. 安装全局的 Node.js 依赖
-
-```bash
-npm i -g node-addon-api node-gyp
-```
-
-#### 3. 安装依赖
+### 2. 安装依赖
 
 可以使用 ```yarn``` 或 ```npm install```
 
-#### 4. 运行
+### 3. 测试编码能力是否正常
+
+`node tools/codec_test.js`
+
+```
+$ node tools/codec_test.js
+Test for JPG to HEIC, AVIF and WebP conversion...
+WebP converted successfully!
+AVIF converted successfully!
+HEIC converted successfully!
+```
+
+### 4. 运行
 
 ```npm start``` 或者使用 ```forever start app.js``` 来使用守护进程运行
 

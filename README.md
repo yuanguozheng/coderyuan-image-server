@@ -71,23 +71,29 @@ Field **URL** means the full URL for fetching image.
 
 ## Run
 
-#### 1. Clone
+### 1. Clone
 
 ```bash
 git clone https://github.com/yuanguozheng/coderyuan-image-server && cd coderyuan-image-server
 ```
 
-#### 2. Install Global Node.js Dependencies
-
-```bash
-npm i -g node-addon-api node-gyp
-```
-
-#### 3. Install Dependencies
+### 2. Install Dependencies
 
 Use ```yarn``` or ```npm install```
 
-#### 4. Start
+### 3. Test for codecs
+
+`node tools/codec_test.js`
+
+```
+$ node tools/codec_test.js
+Test for JPG to HEIC, AVIF and WebP conversion...
+WebP converted successfully!
+AVIF converted successfully!
+HEIC converted successfully!
+```
+
+### 4. Start
 
 ```npm start```
 
