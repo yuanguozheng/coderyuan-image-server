@@ -1,4 +1,3 @@
-const fs = require('fs');
 const config = require('./config');
 const configMgr = config.ConfigManager.getInstance();
 const resolverEnable = configMgr.getValue(config.keys.KEY_RESOLVER_ENABLE);
@@ -14,6 +13,4 @@ if (uploaderEnable) {
     new ImageUploader().startServer();
 }
 
-if (process.platform === 'linux') {
-    fs.writeFile(configMgr.getValue(config.keys.KEY_PID_FILE), process.pid + '', () => { });
-}
+process.env.IMG_SERV_PID = process.pid;

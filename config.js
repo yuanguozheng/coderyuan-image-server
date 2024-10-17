@@ -23,7 +23,6 @@ const keys = {
     KEY_URL_PREFIX: 'image_server_url_prefix',
     KEY_BIND_HOSTNAME: 'bind_hostname',
     KEY_AVAILABLE_EXT: 'available_image_extensions',
-    KEY_PID_FILE: 'pid_file',
 };
 
 /**

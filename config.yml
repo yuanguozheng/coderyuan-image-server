@@ -42,6 +42,3 @@ image_server_url_prefix: 'http://localhost:18000/'
 
 # Max upload image file size(MB)
 max_image_size: 50
-
-# File path for store pid, useful for Systemd, only support Linux
-pid_file: /tmp/coderyuan-image-server.pid
