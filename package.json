@@ -26,6 +26,10 @@
         "js-yaml": "^4.1.0",
         "moment": "^2.21.0",
         "multer": "^1.4.4-lts.1",
+        "node-addon-api": "^8.2.1",
         "sharp": "^0.33.5"
+    },
+    "devDependencies": {
+        "node-gyp": "^10.2.0"
     }
 }
