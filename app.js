@@ -12,5 +12,3 @@ if (uploaderEnable) {
     const ImageUploader = require('./uploader');
     new ImageUploader().startServer();
 }
-
-process.env.IMG_SERV_PID = process.pid;
