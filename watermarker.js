@@ -60,7 +60,7 @@ class WaterMarker {
 
             // Resize the watermark and save it temporarily
             await sharp(WATERMARK_PATH)
-                .resize(targetWmWidth, targetWmHeight)
+                .resize({ width: Math.min(targetWmWidth, width), height: Math.min(targetWmHeight, height), fit: 'inside' })
                 .toFile(fullTargetTempWmPath);
 
             // Composite the watermark onto the original image
