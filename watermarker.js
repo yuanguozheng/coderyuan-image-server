@@ -75,7 +75,6 @@ class WaterMarker {
 
             callback(null);
         } catch (err) {
-            LogUtil.error(err);
             callback(err);
         }
     }
@@ -92,7 +91,7 @@ class WaterMarker {
             const { width, height } = await sharp(imagePath).metadata();
             return { width, height };
         } catch (err) {
-            LogUtil.error(err);
+            LogUtil.error("Get image size error:" + err);
             return { width: -1, height: -1 };
         }
     }

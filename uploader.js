@@ -79,7 +79,7 @@ class ImageUploader extends BaseService {
                     if (!err) {
                         ImageUploader._processFormats(imageFilePath, fileName, res);
                     } else {
-                        LogUtil.error(err);
+                        LogUtil.error('Add watermark error: ' + err);
                         ImageUploader._doResponse(null, err, res);
                     }
                 });
@@ -101,7 +101,7 @@ class ImageUploader extends BaseService {
     static _moveFile(currentPath, destPath, fileName, res) {
         fs.rename(currentPath, destPath, (err) => {
             if (err) {
-                LogUtil.error(err);
+                LogUtil.error('Move file error: ' + err);
                 ImageUploader._doResponse(null, err, res);
                 return;
             } else {
