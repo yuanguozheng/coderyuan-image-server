@@ -25,3 +25,4 @@ cd ..
 rm -rf install_vips
 
 sudo ldconfig
+vips --vips-config
