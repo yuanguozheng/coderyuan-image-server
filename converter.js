@@ -11,12 +11,18 @@ function createSharp(ext) {
     switch (ext) {
         case '.heic':
             return sharpInstance.heif({
-                compression: 'hevc'
+                compression: 'hevc',
+                chromaSubsampling: '4:2:0',
             });
         case '.avif':
-            return sharpInstance.avif();
+            return sharpInstance.avif({
+                chromaSubsampling: '4:2:0',
+            });
         case '.webp':
-            return sharpInstance.webp();
+            return sharpInstance.webp({
+                smartSubsample: true,
+                effort: 6
+            });
         default:
             return sharpInstance;
     }

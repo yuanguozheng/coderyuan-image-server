@@ -39,7 +39,7 @@ class ImageResolver extends BaseService {
         for (let index = 0; index < supportedExts.length; index++) {
             const element = supportedExts[index];
             const fullCompressedFilePath = getImagePath(true, element.ext, pathInfo);
-            if (fs.existsSync(fullCompressedFilePath)) {
+            if (fs.statSync(fullCompressedFilePath).size > 0) {
                 LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends ${element.ext}`);
                 res.sendFile(fullCompressedFilePath, { headers: { 'Content-Type': element.mime } });
                 return;
@@ -50,7 +50,7 @@ class ImageResolver extends BaseService {
         if (userAgent && BrowserUtils.isSafari(userAgent) && BrowserUtils.isSupportHeic(userAgent)) {
             const heicPath = getImagePath(true, ".heic", pathInfo);
 
-            if (fs.existsSync(heicPath)) {
+            if (fs.statSync(heicPath).size > 0) {
                 LogUtil.info(`URL: ${req.url} Safari sends .heic`);
                 res.sendFile(heicPath, { headers: { 'Content-Type': "image/heic" } });
                 return;
@@ -58,7 +58,7 @@ class ImageResolver extends BaseService {
         }
 
         // No accepts maybe not a browser, send normal image
-        if (fs.existsSync(fullNormalFilePath)) {
+        if (fs.statSync(fullNormalFilePath).size > 0) {
             LogUtil.info(`URL: ${req.url} Accepts: ${accepts} sends normal`);
             res.sendFile(fullNormalFilePath);
             return;
